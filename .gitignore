@@ -169,3 +169,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+meme.video素材*
+video
+*.zip
+
+har_and_cookies
+
