@@ -67,7 +67,7 @@ def main():
 
         # 遍历视频目录中的所有文件
         for filename in os.listdir(video_dir):
-            if ' ' not in filename: continue
+            # if ' ' not in filename: continue
             file_path = os.path.join(video_dir, filename)
 
             # 如果是视频文件
