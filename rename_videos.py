@@ -30,7 +30,7 @@ def gen_ticker(filename: str):
     elif len(words) == 3:
         return words[0][:1] + words[1][:1] + words[2][:1] + "T"
     elif len(words) > 4:
-        return words[0][:1] + words[1][:1] + words[2][:1] + words[4][:1]
+        return words[0][:1] + words[1][:1] + words[2][:1] + words[3][:1]
 
 
 def main2():
@@ -56,7 +56,7 @@ def main3():
 def main():
 
     # 打开 CSV 文件进行写入
-    with open(csv_file, mode="w", newline="") as csvfile:
+    with open(csv_file, mode="a+", newline="") as csvfile:
 
         fieldnames = ["name", "symbol", "description", "seconds"]
 
@@ -67,6 +67,7 @@ def main():
 
         # 遍历视频目录中的所有文件
         for filename in os.listdir(video_dir):
+            if ' ' not in filename: continue
             file_path = os.path.join(video_dir, filename)
 
             # 如果是视频文件
@@ -95,6 +96,7 @@ def main():
                 os.rename(file_path, new_file_path)
 
                 symbol = gen_ticker(filename.replace(".mp4", ""))
+                if not symbol: symbol = 'MVVT'
                 symbol = symbol.upper()
 
                 # 写入 CSV 文件
@@ -113,8 +115,8 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
+    main()
 
     # print(gen_ticker('You are'))
-    main2()
-    main3()
+    # main2()
+    # main3()
