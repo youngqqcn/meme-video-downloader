@@ -29,23 +29,33 @@ def get_page_videos(url):
     ret_videos = set()
     while time.time() - start_time < 60 * 60:
         # r = get_video_and_text()
-        time.sleep(5)
+        time.sleep(2)
         r = get_video_and_text_ex()
-        if len(r):
+        if len(r) > 0:
             ret_videos.update(r)
-        print("scrolling...")
+            download_videos(r)
+
         try:
+            print("scrolling...")
+            # 滚到到底部
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # 向下滚动一页
+            # driver.execute_script("window.scrollBy(0, window.innerHeight);")
         except Exception as e:
             print(f"Error scrolling: {e}")
+
+        try:
+            a = driver.find_element(By.CLASS_NAME, "btn end")
+            if a is not None:
+                if a.text == "No more posts":
+                    print("到底了")
+                    break
+        except NoSuchElementException as e:
+            continue
+        except Exception as e:
+            print(f"error: {e}")
+
     return ret_videos
-
-
-# 下载视频
-def download_video(video_url, filename):
-    response = requests.get(video_url)
-    with open(filename, "wb") as f:
-        f.write(response.content)
 
 
 def get_video_and_text_ex():
@@ -78,8 +88,14 @@ def get_video_and_text_ex():
                     .find_element(By.TAG_NAME, "h2")
                     .text
                 )
-                if title is None or len(title) == 0: continue
+                title = title.strip()
+                if title is None or len(title) == 0:
+                    continue
+
                 print("article title = ", title)
+                if os.path.exists(os.path.join("downloads", title + ".mp4")):
+                    print(f"Video {title} already exists, skipping...")
+                    continue
                 videos.append((video_url, title))
         except NoSuchElementException as e:
             print("video标签不存在，跳过")
@@ -89,14 +105,7 @@ def get_video_and_text_ex():
     return videos
 
 
-# 主函数
-def main():
-    videos = get_page_videos("https://9gag.com/top/")
-    # videos = get_video_and_text()
-    print("================================================")
-    print(videos)
-    save_dir = "downloads"
-
+def download_videos(videos, save_dir="downloads"):
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -108,9 +117,47 @@ def main():
                 print(f"Video {idx+1} already exists, skipping...")
                 continue
 
-            download_video(video_url, video_filename)
+            response = requests.get(video_url)
+            with open(video_filename, "wb") as f:
+                f.write(response.content)
         except Exception as e:
             print(f"Error downloading video {idx+1}: {e}")
+
+
+# 主函数
+def main():
+    pages = [
+        # 有底部
+        # "https://9gag.com/top/",
+        # "https://9gag.com/trending",
+
+        # 无底部
+        "https://9gag.com/interest/humor",
+        # "https://9gag.com/interest/memes",
+        # "https://9gag.com/interest/wtf",
+        # "https://9gag.com/interest/animals",
+        # "https://9gag.com/interest/games",
+        # "https://9gag.com/interest/news",
+        # "https://9gag.com/interest/relationship",
+        # "https://9gag.com/interest/motorvehicles",
+        # "https://9gag.com/interest/science",
+        # "https://9gag.com/interest/comic",
+        # "https://9gag.com/interest/wholesome",
+        # "https://9gag.com/interest/sports",
+        # "https://9gag.com/interest/movies",
+        # "https://9gag.com/interest/cats",
+        # "https://9gag.com/interest/food",
+        # "https://9gag.com/interest/lifestyle",
+        # "https://9gag.com/interest/superhero",
+        # "https://9gag.com/interest/random",
+        # "https://9gag.com/interest/woah",
+    ]
+
+    for url in pages:
+        try:
+            get_page_videos(url)
+        except Exception as e:
+            print(f"Error getting videos from {url}: {e}")
 
 
 # 执行脚本
