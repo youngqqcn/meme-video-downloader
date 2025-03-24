@@ -48,16 +48,17 @@ def get_page_videos(url):
         else:
             time.sleep(1)
 
-        try:
-            a = driver.find_element(By.CLASS_NAME, "btn end")
-            if a is not None:
-                if a.text == "No more posts":
-                    print("到底了")
-                    break
-        except NoSuchElementException as e:
-            continue
-        except Exception as e:
-            print(f"error: {e}")
+        if '/top' in url or '/trending' in url:
+            try:
+                a = driver.find_element(By.CLASS_NAME, "btn end")
+                if a is not None:
+                    if a.text == "No more posts":
+                        print("到底了")
+                        break
+            except NoSuchElementException as e:
+                continue
+            except Exception as e:
+                print(f"error: {e}")
 
     return ret_videos
 
