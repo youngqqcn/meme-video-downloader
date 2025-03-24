@@ -27,13 +27,10 @@ def get_page_videos(url):
 
     # 使用 set去重
     ret_videos = set()
-    while time.time() - start_time < 60 * 60:
+    while time.time() - start_time < 2 * 60 * 60:
         # r = get_video_and_text()
-        time.sleep(2)
+        # time.sleep(2)
         r = get_video_and_text_ex()
-        if len(r) > 0:
-            ret_videos.update(r)
-            download_videos(r)
 
         try:
             print("scrolling...")
@@ -43,6 +40,13 @@ def get_page_videos(url):
             # driver.execute_script("window.scrollBy(0, window.innerHeight);")
         except Exception as e:
             print(f"Error scrolling: {e}")
+            continue
+
+        if len(r) > 0:
+            ret_videos.update(r)
+            download_videos(r)
+        else:
+            time.sleep(1)
 
         try:
             a = driver.find_element(By.CLASS_NAME, "btn end")
@@ -91,6 +95,9 @@ def get_video_and_text_ex():
                 title = title.strip()
                 if title is None or len(title) == 0:
                     continue
+                if len(title) >= 2048:
+                    title = title[:2048]
+                    continue
 
                 print("article title = ", title)
                 if os.path.exists(os.path.join("downloads", title + ".mp4")):
@@ -130,27 +137,26 @@ def main():
         # 有底部
         # "https://9gag.com/top/",
         # "https://9gag.com/trending",
-
         # 无底部
-        "https://9gag.com/interest/humor",
+        # "https://9gag.com/interest/humor",
+        "https://9gag.com/interest/woah",
         # "https://9gag.com/interest/memes",
-        # "https://9gag.com/interest/wtf",
-        # "https://9gag.com/interest/animals",
-        # "https://9gag.com/interest/games",
-        # "https://9gag.com/interest/news",
-        # "https://9gag.com/interest/relationship",
-        # "https://9gag.com/interest/motorvehicles",
-        # "https://9gag.com/interest/science",
-        # "https://9gag.com/interest/comic",
-        # "https://9gag.com/interest/wholesome",
-        # "https://9gag.com/interest/sports",
-        # "https://9gag.com/interest/movies",
-        # "https://9gag.com/interest/cats",
-        # "https://9gag.com/interest/food",
-        # "https://9gag.com/interest/lifestyle",
-        # "https://9gag.com/interest/superhero",
-        # "https://9gag.com/interest/random",
-        # "https://9gag.com/interest/woah",
+        "https://9gag.com/interest/wtf",
+        "https://9gag.com/interest/animals",
+        "https://9gag.com/interest/games",
+        "https://9gag.com/interest/news",
+        "https://9gag.com/interest/relationship",
+        "https://9gag.com/interest/motorvehicles",
+        "https://9gag.com/interest/science",
+        "https://9gag.com/interest/comic",
+        "https://9gag.com/interest/wholesome",
+        "https://9gag.com/interest/sports",
+        "https://9gag.com/interest/movies",
+        "https://9gag.com/interest/cats",
+        "https://9gag.com/interest/food",
+        "https://9gag.com/interest/lifestyle",
+        "https://9gag.com/interest/superhero",
+        "https://9gag.com/interest/random",
     ]
 
     for url in pages:
