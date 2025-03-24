@@ -1,5 +1,6 @@
 import time
 import requests
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
@@ -26,12 +27,12 @@ def get_page_videos(url):
 
     # 使用 set去重
     ret_videos = set()
-    while time.time() - start_time <  6:
+    while time.time() - start_time < 60 * 60:
         # r = get_video_and_text()
+        time.sleep(5)
         r = get_video_and_text_ex()
         if len(r):
             ret_videos.update(r)
-        time.sleep(3)
         print("scrolling...")
         try:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -47,21 +48,20 @@ def download_video(video_url, filename):
         f.write(response.content)
 
 
-# # 获取页面上的所有视频链接及文案
-def get_video_and_text():
+def get_video_and_text_ex():
+    """
+    获取页面中的视频和文案
+    """
     videos = []
+
     # 等待页面加载完成后查找视频
+    print("get_video_and_text_ex")
+    article_list = driver.find_elements(By.TAG_NAME, "article")
+    print("article_list length:", len(article_list))
 
-    # article_list = driver.find_elements(By.CLASS_NAME, "list-container")
-
-    posts = driver.find_elements(By.CLASS_NAME, "post-view")
-    print("posts length:", len(posts))
-
-
-    for post in posts:
+    for article in article_list:
         try:
-            video_tag = post.find_element(By.TAG_NAME, "video")
-            # print('video tag: ', video_tag.text)
+            video_tag = article.find_element(By.TAG_NAME, "video")
             if video_tag:
                 # 查找所有的视频源
                 sources = video_tag.find_elements(By.TAG_NAME, "source")
@@ -72,60 +72,19 @@ def get_video_and_text():
                         video_url = source.get_attribute("src")
                         break
 
-                # 获取文案
-                # caption_tag = post.find_element(By.CLASS_NAME, "length")
-                # caption = caption_tag.text if caption_tag else "No caption"
-
-                # if video_url:
-                # videos.append((video_url, caption))
-                if video_url:
-                    videos.append(video_url)
+                # 获取标题
+                title = (
+                    article.find_element(By.TAG_NAME, "header")
+                    .find_element(By.TAG_NAME, "h2")
+                    .text
+                )
+                if title is None or len(title) == 0: continue
+                print("article title = ", title)
+                videos.append((video_url, title))
+        except NoSuchElementException as e:
+            print("video标签不存在，跳过")
         except Exception as e:
             print(f"Error extracting video or caption: {e}")
-
-    return videos
-
-def get_video_and_text_ex():
-    videos = []
-    # 等待页面加载完成后查找视频
-
-    print('get_video_and_text_ex')
-    # article_list = driver.find_elements(By.CLASS_NAME, "list-container")
-    article_list = driver.find_elements(By.TAG_NAME, "article")
-
-    print('article_list length:', len(article_list))
-
-    for article in article_list:
-
-        id = article.get_attribute("id")
-        print('article id = ', id)
-
-
-
-
-        # for post in posts:
-        if True:
-            try:
-                video_tag = article.find_element(By.TAG_NAME, "video")
-                if video_tag:
-                    # 查找所有的视频源
-                    sources = video_tag.find_elements(By.TAG_NAME, "source")
-                    video_url = None
-                    for source in sources:
-                        video_type = source.get_attribute("type")
-                        if "mp4" in video_type:
-                            video_url = source.get_attribute("src")
-                            break
-
-
-                    # 获取标题
-                    title = article.find_element(By.TAG_NAME, "header").find_element(By.TAG_NAME, "h2").text
-                    print('article title = ', title)
-                    videos.append((video_url, title))
-            except NoSuchElementException as e:
-                print("video标签不存在，跳过")
-            except Exception as e:
-                print(f"Error extracting video or caption: {e}")
 
     return videos
 
@@ -136,20 +95,22 @@ def main():
     # videos = get_video_and_text()
     print("================================================")
     print(videos)
+    save_dir = "downloads"
 
-    # for idx, (video_url, caption) in enumerate(videos):
-    #     try:
-    #         print(f"Downloading video {idx+1}: {caption}")
-    #         video_filename = os.path.join(save_dir, f"video_{idx+1}.mp4")
-    #         download_video(video_url, video_filename)
-    #         # 保存文案到文件
-    #         with open(
-    #             os.path.join(save_dir, f"caption_{idx+1}.txt"), "w", encoding="utf-8"
-    #         ) as f:
-    #             f.write(caption)
-    #         print(f"Downloaded: {caption}")
-    #     except Exception as e:
-    #         print(f"Error downloading video {idx+1}: {e}")
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    for idx, (video_url, caption) in enumerate(videos):
+        try:
+            print(f"Downloading video {idx+1}: {caption}")
+            video_filename = os.path.join(save_dir, f"{caption}.mp4")
+            if os.path.exists(video_filename):
+                print(f"Video {idx+1} already exists, skipping...")
+                continue
+
+            download_video(video_url, video_filename)
+        except Exception as e:
+            print(f"Error downloading video {idx+1}: {e}")
 
 
 # 执行脚本
