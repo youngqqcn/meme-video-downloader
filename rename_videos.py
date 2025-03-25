@@ -15,7 +15,7 @@ csv_file = "video_info.csv"
 
 def generate_random_string(length=4):
     # 生成一个包含所有字母和数字的字符集
-    characters = string.ascii_letters + string.digits  # 包含大小写字母和数字
+    characters = string.ascii_letters  # 包含大小写字母和数字
     # 随机从字符集中选择字符，组成一个指定长度的随机字符串
     random_string = "".join(random.choice(characters) for _ in range(length))
     return random_string.upper()
@@ -23,16 +23,16 @@ def generate_random_string(length=4):
 
 def gen_ticker(filename: str):
 
-    words = (
-        filename.strip()
-        .replace("*", "")
-        .replace("#", "")
-        .replace("!", "")
-        .replace("'", "")
-        .replace('"', "")
-        .replace(" ", ",")
-        .split(",")
-    )
+    # words = (
+    #     filename.strip()
+    #     .replace("*", "")
+    #     .replace("#", "")
+    #     .replace("!", "")
+    #     .replace("'", "")
+    #     .replace('"', "")
+    #     .replace(" ", ",")
+    #     .split(",")
+    # )
 
     # if len(words) == 0:
     return generate_random_string(5)
@@ -53,30 +53,10 @@ def gen_ticker(filename: str):
     #     return words[0][:1] + words[1][:1] + words[2][:1] + words[3][:1]
 
 
-def main2():
-
-    for filename in os.listdir(video_dir):
-        file_path = os.path.join(video_dir, filename)
-        new_file_path = file_path.replace(".mp4", "") + ".mp4"
-        os.rename(file_path, new_file_path)
-        # os.rename(file_path, file_path + ".mp4")
-    pass
-
-
-def main3():
-
-    thumbnail = "thumbnail"
-    for filename in os.listdir(thumbnail):
-        file_path = os.path.join(thumbnail, filename)
-        new_file_path = file_path.replace(".mp4", "")
-        os.rename(file_path, new_file_path)
-    pass
-
-
 def main():
 
     # 打开 CSV 文件进行写入
-    with open(csv_file, mode="a+", newline="") as csvfile:
+    with open(csv_file, mode="w", newline="") as csvfile:
 
         fieldnames = ["name", "symbol", "description", "seconds"]
 
@@ -85,15 +65,37 @@ def main():
         # 写入 CSV 文件表头
         writer.writeheader()
 
+        video_paths = set(os.listdir(video_dir))
+
+        mp4_video_paths = []
+
+        # 去重
+        video_hash_set = set()
+
+        for x in video_paths:
+            if x.startswith("."):
+                print("删除.开头文件", x)
+                os.remove(x)
+
+            if x.endswith(".mp4"):
+                mp4_video_paths.append(x)
+            else:
+                # 删除非 mp4 文件
+                print("删除非mp4", x)
+                os.remove(x)
+
+        print("mp4_video_paths length: ", len(mp4_video_paths))
+        # return
+
         # 遍历视频目录中的所有文件
-        for filename in os.listdir(video_dir):
+        for filename in mp4_video_paths:
             file_path = os.path.join(video_dir, filename)
 
             # 如果是视频文件
             try:
-                if os.path.isfile(file_path):
+                if os.path.isfile(file_path) and filename.endswith(".mp4"):
                     # 获取视频的描述（原文件名）
-                    description = filename.replace(".mp4", "")
+                    description = filename.replace(".mp4", "").strip()
 
                     # 计算文件的哈希值
                     with open(file_path, "rb") as f:
@@ -101,7 +103,9 @@ def main():
 
                     # 将哈希值转换为 Base64 编码
                     base32_hash = (
-                        base64.b32encode(file_hash).decode("utf-8").replace("=", "")[:20]
+                        base64.b32encode(file_hash)
+                        .decode("utf-8")
+                        .replace("=", "")[:20]
                     )
 
                     # 获取视频的时长（秒）
@@ -113,16 +117,19 @@ def main():
                         print(f"Error getting duration of {filename}: {e}")
 
                     # 获取新文件名（哈希值的 Base64 编码）
-                    new_name = base32_hash + os.path.splitext(filename)[1]
+                    new_name = base32_hash + ".mp4"
 
                     # 重命名视频文件
                     new_file_path = os.path.join(video_dir, new_name.strip())
                     os.rename(file_path, new_file_path)
 
-                    symbol = gen_ticker(filename.replace(".mp4", ""))
-                    if not symbol:
-                        symbol = "MVVT"
-                    symbol = symbol.upper()
+                    symbol = generate_random_string(5).upper()
+
+                    # 去重
+                    if new_name in video_hash_set:
+                        print(new_name, "重复")
+                        continue
+                    video_hash_set.add(new_name)
 
                     # 写入 CSV 文件
                     writer.writerow(
@@ -137,13 +144,11 @@ def main():
                     print(
                         f"Renamed: {filename} -> {new_name} | Duration: {duration} seconds"
                     )
+                else:
+                    print(f"Skipping non-video file: {filename}")
             except Exception as e:
                 print(f"Error processing {filename}: {e}")
 
 
 if __name__ == "__main__":
     main()
-
-    # print(gen_ticker('You are'))
-    # main2()
-    # main3()

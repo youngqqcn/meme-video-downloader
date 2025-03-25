@@ -128,6 +128,16 @@ def download_videos(videos, save_dir="downloads"):
 
     for idx, (video_url, caption) in enumerate(videos):
         try:
+
+            if str(caption).startswith('.'):
+                # 跳过 .开头
+                continue
+            if len(str(caption).strip().replace('.', '').strip()) == 0:
+                # 跳过空文本视频
+                print('skip empty caption video')
+                continue
+            caption = str(caption).replace('*', '')
+
             print(f"Downloading video {idx+1}: {caption}")
             video_filename = os.path.join(save_dir, f"{caption}.mp4")
             if os.path.exists(video_filename):
