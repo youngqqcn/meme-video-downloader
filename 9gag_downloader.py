@@ -27,7 +27,7 @@ def get_page_videos(url):
 
     # 使用 set去重
     ret_videos = set()
-    while time.time() - start_time < 2 * 60 * 60:
+    while time.time() - start_time <10 * 60:
         # r = get_video_and_text()
         # time.sleep(2)
         r = get_video_and_text_ex()
@@ -48,7 +48,8 @@ def get_page_videos(url):
         else:
             time.sleep(1)
 
-        if '/top' in url or '/trending' in url:
+        # if '/top' in url or '/trending' in url:
+        if True:
             try:
                 a = driver.find_element(By.CLASS_NAME, "btn end")
                 if a is not None:
@@ -136,15 +137,16 @@ def download_videos(videos, save_dir="downloads"):
 def main():
     pages = [
         # 有底部
+        # "https://9gag.com/home",
         # "https://9gag.com/top/",
         # "https://9gag.com/trending",
         # 无底部
         # "https://9gag.com/interest/humor",
-        "https://9gag.com/interest/woah",
+        # "https://9gag.com/interest/woah",
         # "https://9gag.com/interest/memes",
-        "https://9gag.com/interest/wtf",
-        "https://9gag.com/interest/animals",
-        "https://9gag.com/interest/games",
+        # "https://9gag.com/interest/wtf",
+        # "https://9gag.com/interest/animals",
+        # "https://9gag.com/interest/games",
         "https://9gag.com/interest/news",
         "https://9gag.com/interest/relationship",
         "https://9gag.com/interest/motorvehicles",
@@ -152,12 +154,13 @@ def main():
         "https://9gag.com/interest/comic",
         "https://9gag.com/interest/wholesome",
         "https://9gag.com/interest/sports",
-        "https://9gag.com/interest/movies",
+        # "https://9gag.com/interest/movies",
         "https://9gag.com/interest/cats",
         "https://9gag.com/interest/food",
-        "https://9gag.com/interest/lifestyle",
-        "https://9gag.com/interest/superhero",
-        "https://9gag.com/interest/random",
+        # "https://9gag.com/interest/anime",
+        # "https://9gag.com/interest/superhero",
+        # "https://9gag.com/interest/lifestyle",
+        # "https://9gag.com/interest/random",
     ]
 
     for url in pages:
