@@ -1,50 +1,69 @@
 import os
-import cv2
-
+import ffmpeg
+from PIL import Image
 # 定义视频目录和输出图片目录
 video_dir = "video"
 output_dir = "thumbnail"
 
-# 确保输出目录存在
-os.makedirs(output_dir, exist_ok=True)
+def resize_to_square(image_path, output_path):
+    # 打开图片
+    img = Image.open(image_path)
 
-# 遍历视频目录中的所有文件
-for filename in os.listdir(video_dir):
-    file_path = os.path.join(video_dir, filename)
+    # 获取图片的宽高
+    width, height = img.size
 
-    # 确保是文件且是视频格式（可扩展支持更多格式）
-    if os.path.isfile(file_path) and filename.lower().endswith(
-        (".mp4", ".avi", ".mov", ".mkv", ".flv")
-    ):
-        # 读取视频
-        cap = cv2.VideoCapture(file_path)
+    # 计算裁剪区域的大小
+    new_size = min(width, height)
 
-        # 读取第一帧
-        success, frame = cap.read()
+    # 计算裁剪区域的位置，保持中心对齐
+    left = (width - new_size) // 2
+    top = (height - new_size) // 2
+    right = (width + new_size) // 2
+    bottom = (height + new_size) // 2
 
-        if success:
-            # 获取原始帧的高度和宽度
-            height, width, _ = frame.shape
+    # 裁剪图像
+    img_cropped = img.crop((left, top, right, bottom))
 
-            # 计算裁剪区域的边长（取宽度和高度的最小值）
-            crop_size = min(width, height)
+    # 保存裁剪后的图片
+    img_cropped.save(output_path)
+    img_cropped.close()
 
-            # 计算裁剪的起始坐标（以图像中心为基准）
-            x_start = (width - crop_size) // 2
-            y_start = (height - crop_size) // 2
 
-            # 裁剪图像
-            cropped_frame = frame[
-                y_start : y_start + crop_size, x_start : x_start + crop_size
-            ]
+
+
+def save_first_frame(video_path, output_image="first_frame.jpg"):
+    ffmpeg.input(video_path).output(output_image, vframes=1).run()
+
+
+def main():
+
+    # 确保输出目录存在
+    os.makedirs(output_dir, exist_ok=True)
+
+    videos = os.listdir(video_dir)
+
+    print("videos length: ", len(videos))
+
+    # 遍历视频目录中的所有文件
+    for filename in videos:
+        file_path = os.path.join(video_dir, filename)
+
+        # 确保是文件且是视频格式（可扩展支持更多格式）
+        if os.path.isfile(file_path) and filename.lower().endswith((".mp4")):
+            # 读取视频
 
             # 生成图片文件路径
-            image_filename = os.path.splitext(filename)[0].replace('.mp4', '') + ".png"
+            image_filename = os.path.splitext(filename)[0].replace(".mp4", "") + ".png"
             image_path = os.path.join(output_dir, image_filename)
+            save_first_frame(file_path, image_path)
 
             # 保存裁剪后的图像为 PNG
-            cv2.imwrite(image_path, cropped_frame)
+            # cv2.imwrite(image_path, cropped_frame)
+            resize_to_square(image_path, image_path)
             print(f"Saved cropped first frame of {filename} as {image_filename}")
 
-        # 释放资源
-        cap.release()
+    pass
+
+
+if __name__ == "__main__":
+    main()

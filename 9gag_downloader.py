@@ -9,6 +9,14 @@ from selenium.common.exceptions import NoSuchElementException
 def get_default_chrome_options():
     options = webdriver.ChromeOptions()
     options.add_argument("--no-sandbox")
+     # 试验
+    options.add_argument("--disable-infobars")
+    # options.add_argument("start-maximized") #  最大化
+    options.add_argument("--disable-extensions")
+    # Pass the argument 1 to allow and 2 to block
+    options.add_experimental_option(
+        "prefs", {"profile.default_content_setting_values.notifications": 1}
+    )
     return options
 
 
@@ -140,6 +148,8 @@ def main():
         # "https://9gag.com/home",
         # "https://9gag.com/top/",
         # "https://9gag.com/trending",
+        # "https://9gag.com/tag/trump",
+        "https://9gag.com/fresh"
         # 无底部
         # "https://9gag.com/interest/humor",
         # "https://9gag.com/interest/woah",
@@ -147,16 +157,16 @@ def main():
         # "https://9gag.com/interest/wtf",
         # "https://9gag.com/interest/animals",
         # "https://9gag.com/interest/games",
-        "https://9gag.com/interest/news",
-        "https://9gag.com/interest/relationship",
-        "https://9gag.com/interest/motorvehicles",
-        "https://9gag.com/interest/science",
-        "https://9gag.com/interest/comic",
-        "https://9gag.com/interest/wholesome",
-        "https://9gag.com/interest/sports",
+        # "https://9gag.com/interest/news",
+        # "https://9gag.com/interest/relationship",
+        # "https://9gag.com/interest/motorvehicles",
+        # "https://9gag.com/interest/science",
+        # "https://9gag.com/interest/comic",
+        # "https://9gag.com/interest/wholesome",
+        # "https://9gag.com/interest/sports",
         # "https://9gag.com/interest/movies",
-        "https://9gag.com/interest/cats",
-        "https://9gag.com/interest/food",
+        # "https://9gag.com/interest/cats",
+        # "https://9gag.com/interest/food",
         # "https://9gag.com/interest/anime",
         # "https://9gag.com/interest/superhero",
         # "https://9gag.com/interest/lifestyle",
