@@ -9,7 +9,7 @@ from selenium.common.exceptions import NoSuchElementException
 def get_default_chrome_options():
     options = webdriver.ChromeOptions()
     options.add_argument("--no-sandbox")
-     # 试验
+    # 试验
     options.add_argument("--disable-infobars")
     # options.add_argument("start-maximized") #  最大化
     options.add_argument("--disable-extensions")
@@ -29,13 +29,14 @@ driver = webdriver.Chrome(service=service, options=options)
 # 获取页面内容
 def get_page_videos(url):
     driver.get(url)
-    # last_height = driver.execute_script("return document.body.scrollHeight")
+    time.sleep(5)
 
     start_time = time.time()
 
+    last_height = driver.execute_script("return document.body.scrollHeight")
     # 使用 set去重
     ret_videos = set()
-    while time.time() - start_time <10 * 60:
+    while time.time() - start_time < 1 * 60 * 60:
         # r = get_video_and_text()
         # time.sleep(2)
         r = get_video_and_text_ex()
@@ -52,22 +53,35 @@ def get_page_videos(url):
 
         if len(r) > 0:
             ret_videos.update(r)
+            tmp_start = time.time()
             download_videos(r)
+            while time.time() - tmp_start < 10:
+                time.sleep(1)
         else:
-            time.sleep(1)
+            time.sleep(10)
 
-        # if '/top' in url or '/trending' in url:
-        if True:
+        # 休眠几秒，等待页面加载
+        try_times = 0
+        new_height = 0
+        while try_times < 5:
             try:
-                a = driver.find_element(By.CLASS_NAME, "btn end")
-                if a is not None:
-                    if a.text == "No more posts":
-                        print("到底了")
-                        break
-            except NoSuchElementException as e:
-                continue
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(15)
+                new_height = driver.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    time.sleep(10)
+                else:
+                    break
             except Exception as e:
-                print(f"error: {e}")
+                print(f"Error scrolling: {e}")
+            finally:
+                try_times += 1
+
+        if try_times == 5 and new_height == last_height:
+            print("滚动到底部了，已经滚不动了")
+            break
+
+        last_height = new_height
 
     return ret_videos
 
@@ -129,14 +143,14 @@ def download_videos(videos, save_dir="downloads"):
     for idx, (video_url, caption) in enumerate(videos):
         try:
 
-            if str(caption).startswith('.'):
+            if str(caption).startswith("."):
                 # 跳过 .开头
                 continue
-            if len(str(caption).strip().replace('.', '').strip()) == 0:
+            if len(str(caption).strip().replace(".", "").strip()) == 0:
                 # 跳过空文本视频
-                print('skip empty caption video')
+                print("skip empty caption video")
                 continue
-            caption = str(caption).replace('*', '')
+            caption = str(caption).replace("*", "")
 
             print(f"Downloading video {idx+1}: {caption}")
             video_filename = os.path.join(save_dir, f"{caption}.mp4")

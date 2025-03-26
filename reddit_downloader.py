@@ -20,7 +20,7 @@ def get_default_chrome_options():
 
     # 试验
     options.add_argument("--disable-infobars")
-    options.add_argument("start-maximized")
+    # options.add_argument("start-maximized")
     options.add_argument("--disable-extensions")
     # Pass the argument 1 to allow and 2 to block
     options.add_experimental_option(
@@ -76,7 +76,9 @@ def get_page_videos(url):
     time.sleep(5)
     # 使用 set去重
     ret_videos = set()
-    while time.time() - start_time < 10 * 60:
+    # 获取初始滚动高度
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    while time.time() - start_time < 5 * 60 * 60:
         r = get_video_and_text_ex()
         try:
             print("scrolling...")
@@ -90,14 +92,39 @@ def get_page_videos(url):
 
         if len(r) > 0:
             ret_videos.update(r)
+            tmp_start = time.time()
             download_videos(r)
+            while time.time() - tmp_start < 10:
+                time.sleep(1)
         else:
-            time.sleep(5)
+            time.sleep(10)
 
+        # 休眠几秒，等待页面加载
+        try_times = 0
+        new_height = 0
+        while try_times < 10:
+            try:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(15)
+                new_height = driver.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    time.sleep(3)
+                else:
+                    break
+            except Exception as e:
+                print(f"Error scrolling: {e}")
+            finally:
+                try_times += 1
+
+        if try_times == 10 and new_height == last_height:
+            print("滚动到底部了，已经滚不动了")
+            break
+
+        last_height = new_height
         pass
 
     # return ret_videos
-    time.sleep(1200)
+    # time.sleep(1200)
     return []
 
 
@@ -119,19 +146,10 @@ def get_video_and_text_ex():
             post_type = post.get_attribute("post-type")
             if post_type != "video":
                 continue
-            # print("title:", title)
 
             player2 = post.find_element(By.TAG_NAME, "shreddit-player-2")
-            if player2:
-                print("找到 shreddit-player-2")
-
-            # 找不到 video 标签
-            # video_tag = player2.find_element(By.TAG_NAME, "video")
-            # if video_tag:
-            #     print("找到 video")
 
             media_json = player2.get_attribute("packaged-media-json")
-            # print(media_json)
             if media_json:
                 media_metadata = json.loads(media_json)
                 if (
@@ -177,7 +195,35 @@ def main():
     # 登录 Reddit
     # login_reddit()
 
-    pages = ["https://www.reddit.com/r/funnyvideos/"]
+    pages = [
+        # "https://www.reddit.com/?feed=home",
+        # "https://www.reddit.com/r/popular/",
+        # "https://www.reddit.com/r/funny/",
+        "https://www.reddit.com/r/nextfuckinglevel/",
+        # "https://www.reddit.com/r/interestingasfuck",
+        "https://www.reddit.com/r/mildlyinteresting",
+        "https://www.reddit.com/r/todayilearned",
+        "https://www.reddit.com/r/Damnthatsinteresting",
+        "https://www.reddit.com/r/BeAmazed",
+        "https://www.reddit.com/r/Wellthatsucks/",
+        "https://www.reddit.com/r/Unexpected",
+        "https://www.reddit.com/r/SipsTea",
+        "https://www.reddit.com/r/toptalent",
+        "https://www.reddit.com/r/RoastMe",
+        "https://www.reddit.com/r/oddlysatisfying",
+        "https://www.reddit.com/r/maybemaybemaybe",
+        "https://www.reddit.com/r/MadeMeSmile",
+        "https://www.reddit.com/r/woahdude",
+        "https://www.reddit.com/r/aww",
+        "https://www.reddit.com/r/AbsoluteUnits",
+        "https://www.reddit.com/r/blackmagicfuckery/"
+        "https://www.reddit.com/r/singularity/",
+        "https://www.reddit.com/r/pcmasterrace/",
+        "https://www.reddit.com/r/OldSchoolCool",
+        # "https://www.reddit.com/r/funnyvideos/",
+        # "https://www.reddit.com/r/MemeVideos/",
+        # "https://www.reddit.com/r/woahthatsinteresting/",
+    ]
     for url in pages:
         try:
             get_page_videos(url)
