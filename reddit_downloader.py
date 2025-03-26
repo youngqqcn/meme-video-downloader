@@ -222,10 +222,9 @@ def main():
         # "https://www.reddit.com/r/MadeMeSmile",
         # "https://www.reddit.com/r/woahdude",
         # "https://www.reddit.com/r/aww",
-        "https://www.reddit.com/r/AbsoluteUnits",
-        "https://www.reddit.com/r/blackmagicfuckery/"
+        # "https://www.reddit.com/r/AbsoluteUnits",
+        # "https://www.reddit.com/r/blackmagicfuckery/"
         "https://www.reddit.com/r/singularity/",
-        "https://www.reddit.com/r/pcmasterrace/",
         "https://www.reddit.com/r/OldSchoolCool",
         "https://www.reddit.com/r/funnyvideos/",
         "https://www.reddit.com/r/MemeVideos/",
