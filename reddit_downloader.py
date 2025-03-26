@@ -73,7 +73,7 @@ def get_page_videos(url):
     driver.get(url)
     start_time = time.time()
 
-    time.sleep(5)
+    time.sleep(15)
     # 使用 set去重
     ret_videos = set()
     # 获取初始滚动高度
@@ -179,8 +179,14 @@ def download_videos(videos, save_dir="downloads_reddit"):
             print(f"Downloading video {idx+1}: {caption}")
             video_filename = os.path.join(save_dir, f"{caption}.mp4")
             if os.path.exists(video_filename):
-                print(f"Video {idx+1} already exists, skipping...")
-                continue
+                # 处理 maybemaybemaybe 频道的视频
+                if caption.strip().lower() == "maybe maybe maybe":
+                    video_filename = os.path.join(
+                        save_dir, f"{caption}-{random.randint(1000, 999999)}.mp4"
+                    )
+                else:
+                    print(f"Video {idx+1} already exists, skipping...")
+                    continue
 
             response = requests.get(video_url)
             with open(video_filename, "wb") as f:
@@ -196,33 +202,34 @@ def main():
     # login_reddit()
 
     pages = [
-        # "https://www.reddit.com/?feed=home",
         # "https://www.reddit.com/r/popular/",
+        # "https://www.reddit.com/?feed=home",
         # "https://www.reddit.com/r/funny/",
-        "https://www.reddit.com/r/nextfuckinglevel/",
+        # "https://www.reddit.com/r/nextfuckinglevel/",
         # "https://www.reddit.com/r/interestingasfuck",
-        "https://www.reddit.com/r/mildlyinteresting",
-        "https://www.reddit.com/r/todayilearned",
-        "https://www.reddit.com/r/Damnthatsinteresting",
-        "https://www.reddit.com/r/BeAmazed",
-        "https://www.reddit.com/r/Wellthatsucks/",
-        "https://www.reddit.com/r/Unexpected",
-        "https://www.reddit.com/r/SipsTea",
-        "https://www.reddit.com/r/toptalent",
-        "https://www.reddit.com/r/RoastMe",
-        "https://www.reddit.com/r/oddlysatisfying",
-        "https://www.reddit.com/r/maybemaybemaybe",
-        "https://www.reddit.com/r/MadeMeSmile",
-        "https://www.reddit.com/r/woahdude",
-        "https://www.reddit.com/r/aww",
+        # "https://www.reddit.com/r/mildlyinteresting",
+        # "https://www.reddit.com/r/maybemaybemaybe", # 高质量
+        # "http://reddit.com/r/MadeMeSmile/",
+        # "https://www.reddit.com/r/Damnthatsinteresting",
+        # "https://www.reddit.com/r/GuysBeingDudes/",
+        # "https://www.reddit.com/r/BeAmazed",
+        # "https://www.reddit.com/r/Wellthatsucks/",
+        # "https://www.reddit.com/r/Unexpected",
+        # "https://www.reddit.com/r/SipsTea",
+        # "https://www.reddit.com/r/toptalent",
+        # "https://www.reddit.com/r/RoastMe",
+        # "https://www.reddit.com/r/oddlysatisfying",
+        # "https://www.reddit.com/r/MadeMeSmile",
+        # "https://www.reddit.com/r/woahdude",
+        # "https://www.reddit.com/r/aww",
         "https://www.reddit.com/r/AbsoluteUnits",
         "https://www.reddit.com/r/blackmagicfuckery/"
         "https://www.reddit.com/r/singularity/",
         "https://www.reddit.com/r/pcmasterrace/",
         "https://www.reddit.com/r/OldSchoolCool",
-        # "https://www.reddit.com/r/funnyvideos/",
-        # "https://www.reddit.com/r/MemeVideos/",
-        # "https://www.reddit.com/r/woahthatsinteresting/",
+        "https://www.reddit.com/r/funnyvideos/",
+        "https://www.reddit.com/r/MemeVideos/",
+        "https://www.reddit.com/r/woahthatsinteresting/",
     ]
     for url in pages:
         try:
