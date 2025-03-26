@@ -75,14 +75,14 @@ def main():
         for x in video_paths:
             if x.startswith("."):
                 print("删除.开头文件", x)
-                os.remove(x)
+                os.remove( os.path.join(video_dir, x))
 
             if x.endswith(".mp4"):
                 mp4_video_paths.append(x)
             else:
                 # 删除非 mp4 文件
                 print("删除非mp4", x)
-                os.remove(x)
+                os.remove( os.path.join(video_dir, x))
 
         print("mp4_video_paths length: ", len(mp4_video_paths))
         # return
