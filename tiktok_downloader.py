@@ -99,13 +99,13 @@ async def fetch_data(url: str, headers: dict = None):
 #             return True
 
 
-def download_video(url_desc, headers: dict = None, file_path: str = None):
+def download_video(url, caption, headers: dict = None, file_path: str = None):
     # if not os.path.exists(file_path):
     # os.makedirs(file_path)
 
     # for idx, (video_url, caption) in enumerate(videos):
-    video_url = url_desc[0]
-    caption = url_desc[1]
+    # video_url = url_desc[0]
+    # caption = url_desc[1]
     headers = (
         {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -113,7 +113,7 @@ def download_video(url_desc, headers: dict = None, file_path: str = None):
         if headers is None
         else headers.get("headers")
     )
-    for i in range(len(url_desc)):
+    for i in range(1):
         try:
             if str(caption).startswith("."):
                 # 跳过 .开头
@@ -131,7 +131,7 @@ def download_video(url_desc, headers: dict = None, file_path: str = None):
                 print(f"Video {video_filename} already exists, skipping...")
                 continue
 
-            response = requests.get(video_url, headers=headers)
+            response = requests.get(url, headers=headers)
             with open(video_filename, "wb") as f:
                 f.write(response.content)
         except Exception as e:
