@@ -126,53 +126,45 @@ def download_video(url, caption, headers: dict = None, file_path: str = None):
 
             print(f"Downloading video : {caption}")
             caption = str(caption).replace("\n", "")
-            video_filename = os.path.join(file_path, f"{caption}.mp4")
-            if os.path.exists(video_filename):
-                print(f"Video {video_filename} already exists, skipping...")
+            if os.path.exists(file_path):
+                print(f"Video {file_path} already exists, skipping...")
                 continue
 
             response = requests.get(url, headers=headers)
-            with open(video_filename, "wb") as f:
+            with open(file_path, "wb") as f:
                 f.write(response.content)
         except Exception as e:
             print(f"Error downloading video  {e}")
 
 
-async def download_single_url(url_desc: tuple[str, str]):
+async def download_single_url(url_desc_tag: tuple[str, str, str]):
     try:
-        # 开始解析数据
-        # try:
-        #     data = await HybridCrawler().hybrid_parsing_single_video(
-        #         url=url, minimal=True
-        #     )
-        # except Exception as e:
-        #     print("hybrid_parsing_single_video 报错: ", e)
-        #     return
+        no_watermark_video_url = url_desc_tag[0]
 
-        # description = data.get("desc").strip()
-        # if len(description) > 1096:
-        #     description = str(description.strip())[:1096]
+        description = url_desc_tag[1]
+        tag = url_desc_tag[2]
 
-        no_watermark_video_url = url_desc[0]
-        description = url_desc[1]
         file_path = os.path.abspath(
-            os.path.join("downloads_tiktok", description + ".mp4")
+            os.path.join("downloads_tiktok", tag, description + ".mp4")
         )
         if os.path.exists(file_path):
             print(f"已存在, 跳过: {no_watermark_video_url}")
             return
         __headers = await HybridCrawler().TikTokWebCrawler.get_tiktok_headers()
-        # no_watermark_video_url = data.get("video_data").get("nwm_video_url_HQ")
-        success = download_video(
-            no_watermark_video_url, headers=__headers, file_path=file_path
+        download_video(
+            url=no_watermark_video_url,
+            caption=description,
+            headers=__headers,
+            file_path=file_path,
         )
-        if not success:
-            print(f"下载失败: {no_watermark_video_url}")
+        print(f"下载成功: {file_path}")
+        # if not success:
+        # print(f"下载失败: {no_watermark_video_url}")
     except Exception as e:
         print("error: ", e)
 
 
-async def parse_tiktok_urls(urls: List[str]):
+async def parse_tiktok_urls(urls: List[str], tag: str):
     # 开始解析数据
     ret_data = []
     for url in urls:
@@ -185,29 +177,33 @@ async def parse_tiktok_urls(urls: List[str]):
             if len(description) > 200:
                 description = str(description.strip())[:200]
             description = description.replace("/", "_")
-            ret_data.append((no_watermark_video_url, description))
+            ret_data.append((no_watermark_video_url, description, tag))
         except Exception as e:
             print("hybrid_parsing_single_video 报错: ", e)
             # return
     return ret_data
 
 
-def download_url_wrapper(url_desc):
+def download_url_wrapper(url_desc_tag):
     # 在单独的进程中运行异步函数
-    asyncio.run(download_single_url(url_desc))
+    asyncio.run(
+        download_single_url(
+            url_desc_tag,
+        )
+    )
 
 
-def download_tiktok_urls(url_descs: list):
+def download_tiktok_urls(url_descs_tag: list):
     # 创建下载目录
     os.makedirs("downloads_tiktok", exist_ok=True)
 
     # 使用多进程池
     with Pool(cpu_count() - 1) as pool:
-        pool.map(download_url_wrapper, url_descs)
+        pool.map(download_url_wrapper, url_descs_tag)
 
 
 # 获取页面内容
-async def get_page_videos(url):
+async def get_page_videos(url, tag: str):
     driver.get(url)
     start_time = time.time()
 
@@ -232,8 +228,8 @@ async def get_page_videos(url):
             ret_videos.update(r)
             tmp_start = time.time()
 
-            url_descs = await parse_tiktok_urls(r)
-            download_tiktok_urls(url_descs)
+            url_descs_tag = await parse_tiktok_urls(r, tag)
+            download_tiktok_urls(url_descs_tag)
             print("==================")
             print(r)
             print("==================")
@@ -311,6 +307,14 @@ async def main():
 
     # login_tiktok()
 
+    # download_video(
+    #     url="https://v16m-default.akamaized.net/e6fa9d80e2e6454538eac706609a858e/67e6df2f/video/tos/useast2a/tos-useast2a-ve-0068-euttp/oQk5uBrERE0ARPdf6DIQ2fDlYQQFEDCEBQrSR5/?a=0&bti=OHYpOTY0Zik3OjlmOm01MzE6ZDQ0MDo%3D&ch=0&cr=13&dr=0&er=0&lr=all&net=0&cd=0%7C0%7C0%7C&cv=1&br=1498&bt=749&cs=2&ds=6&ft=XE5bCqx4m3lPD12U~z9J3wU682StMeF~O5&mime_type=video_mp4&qs=11&rc=aDVnNjk7Njs0Njw5NTw7Z0BpM2h5OXc5cjM3cTMzZjczM0AuMS0wLmAwXzAxM2MvLzIwYSM1Z29hMmRrNmZgLS1kMWNzcw%3D%3D&vvpl=1&l=202503281140450ABFE7BF0EFF8F3CC646&btag=e000b8000",
+    #     caption="xxx",
+    #     headers=None,
+    #     file_path="xxx.mp4",
+    # )
+    # return
+
     pages = [
         # "https://www.tiktok.com/tag/meme",
         # "https://www.tiktok.com/tag/funny",
@@ -347,7 +351,10 @@ async def main():
     ]
     for url in pages:
         try:
-            await get_page_videos(url)
+            tag = url.replace("https://www.tiktok.com/tag/", "").strip()
+            if not os.path.exists(os.path.join("downloads_tiktok", tag)):
+                os.makedirs(os.path.join("downloads_tiktok", tag), exist_ok=True)
+            await get_page_videos(url, tag)
         except Exception as e:
             print(f"Error getting videos from {url}: {e}")
             traceback.print_exc()
