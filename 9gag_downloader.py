@@ -143,6 +143,7 @@ def download_videos(videos, save_dir="downloads"):
     for idx, (video_url, caption) in enumerate(videos):
         try:
 
+            caption = str(caption).replace('\n', '')
             if str(caption).startswith("."):
                 # 跳过 .开头
                 continue
