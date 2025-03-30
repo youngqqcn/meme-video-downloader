@@ -1,9 +1,10 @@
 import asyncio
 import json
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, Process, cpu_count
 import os
 import random
 import sys
+from threading import Thread
 import traceback
 from types import CoroutineType
 from typing import List
@@ -70,7 +71,6 @@ async def fetch_data(url: str, headers: dict = None):
         response = await client.get(url, headers=headers)
         response.raise_for_status()  # 确保响应是成功的
         return response
-
 
 
 def download_video(url, caption, headers: dict = None, file_path: str = None):
@@ -141,6 +141,9 @@ async def download_single_url(url_desc_tag: tuple[str, str, str]):
 async def parse_tiktok_urls(urls: List[str], tag: str):
     # 开始解析数据
     ret_data = []
+
+    threads = []
+    i = 0
     for url in urls:
         try:
             data = await HybridCrawler().hybrid_parsing_single_video(
@@ -152,9 +155,20 @@ async def parse_tiktok_urls(urls: List[str], tag: str):
                 description = str(description.strip())[:200]
             description = description.replace("/", "_")
             ret_data.append((no_watermark_video_url, description, tag))
+
+            # Process()
+            t = Thread(
+                target=download_url_wrapper,
+                args=((no_watermark_video_url, description, tag),),
+            )
+            t.start()
+            threads.append(t)
+            i += 1
         except Exception as e:
             print("hybrid_parsing_single_video 报错: ", e)
             # return
+    for t in threads:
+        t.join()
     return ret_data
 
 
@@ -167,13 +181,13 @@ def download_url_wrapper(url_desc_tag):
     )
 
 
-def download_tiktok_urls(url_descs_tag: list):
-    # 创建下载目录
-    os.makedirs("downloads_tiktok", exist_ok=True)
+# def download_tiktok_urls(url_descs_tag: list):
+#     # 创建下载目录
+#     os.makedirs("downloads_tiktok", exist_ok=True)
 
-    # 使用多进程池
-    with Pool(cpu_count() - 1) as pool:
-        pool.map(download_url_wrapper, url_descs_tag)
+#     # 使用多进程池
+#     with Pool(cpu_count() - 1) as pool:
+#         pool.map(download_url_wrapper, url_descs_tag)
 
 
 # 获取页面内容
@@ -202,8 +216,8 @@ async def get_page_videos(url, tag: str):
             ret_videos.update(r)
             tmp_start = time.time()
 
-            url_descs_tag = await parse_tiktok_urls(r, tag)
-            download_tiktok_urls(url_descs_tag)
+            await parse_tiktok_urls(r, tag)
+            # download_tiktok_urls(url_descs_tag)
             print("==================")
             print(r)
             print("==================")
@@ -293,8 +307,8 @@ async def main():
         # "https://www.tiktok.com/tag/meme",
         # "https://www.tiktok.com/tag/funny",
         # "https://www.tiktok.com/tag/food",
-        "https://www.tiktok.com/tag/dancing",
-        "https://www.tiktok.com/tag/dance",
+        # "https://www.tiktok.com/tag/dancing",
+        # "https://www.tiktok.com/tag/dance",
         "https://www.tiktok.com/tag/eating",
         "https://www.tiktok.com/tag/fyp",
         "https://www.tiktok.com/tag/foryou",
