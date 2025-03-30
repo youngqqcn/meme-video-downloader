@@ -14,3 +14,10 @@
   - `unzip chromedriver-linux64.zip`
 
 基于 `yt-dlp`: https://github.com/yt-dlp/yt-dlp
+
+
+## 获取Tiktok的cache
+
+- F5刷新
+
+![](./get_tiktok_cache.jpg)
