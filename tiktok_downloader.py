@@ -211,11 +211,10 @@ async def get_page_videos(url, tag: str):
         new_height = 0
         while try_times < 3:
             try:
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                await asyncio.sleep(15)
                 new_height = driver.execute_script("return document.body.scrollHeight")
                 if new_height == last_height:
-                    await asyncio.sleep(3)
+                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    await asyncio.sleep(10)
                 else:
                     break
             except Exception as e:
@@ -224,7 +223,6 @@ async def get_page_videos(url, tag: str):
                 try_times += 1
 
         if try_times == 3 and new_height == last_height:
-
             print("滚动到底部了，已经滚不动了")
             break
 
@@ -289,7 +287,7 @@ async def main():
         # "https://www.tiktok.com/tag/anime",
         # "https://www.tiktok.com/tag/beauty",
         # "https://www.tiktok.com/tag/basketball",
-        "https://www.tiktok.com/tag/dancer",
+        # "https://www.tiktok.com/tag/dancer",
         "https://www.tiktok.com/tag/relax",
         "https://www.tiktok.com/tag/relaxing",
         "https://www.tiktok.com/tag/scenery",
