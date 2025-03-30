@@ -1,4 +1,5 @@
 import asyncio
+import requests
 import json
 
 # from multiprocessing import Pool, cpu_count
@@ -14,7 +15,6 @@ from typing import List
 
 import aiofiles
 import httpx
-import requests
 
 # 添加 Douyin_TikTok_Download_API
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +23,6 @@ sys.path.append(a_dir)
 
 
 import time
-import requests
 import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -60,7 +59,7 @@ driver = webdriver.Chrome(service=service, options=options)
 
 # 使用 Python3.13.2的 无GIL版本自由线程, 容器自带锁，因此无需额外加锁
 # 从页面获取原始视频分享链接队列
-global_raw_share_urls_queue = []
+# global_raw_share_urls_queue = []
 # 解析后的视频下载链接队列
 queue_lock = Lock()
 global_parsed_video_urls_queue = []
@@ -128,7 +127,7 @@ async def download_single_url(url_desc_tag: tuple[str, str, str]):
 async def parse_tiktok_share_urls(share_urls: List[str], tag: str):
     """解析"""
     # 开始解析数据
-    ret_data = []
+    # ret_data = []
     for url in share_urls:
         try:
             data = await HybridCrawler().hybrid_parsing_single_video(
@@ -140,24 +139,31 @@ async def parse_tiktok_share_urls(share_urls: List[str], tag: str):
                 description = str(description.strip())[:200]
             description = description.replace("/", "_")
 
+
+            queue_lock.acquire()
+            print('将解析好的url加入队列')
             global_parsed_video_urls_queue.append(
                 (no_watermark_video_url, description, tag)
             )
+            queue_lock.release()
+
         except Exception as e:
             print("hybrid_parsing_single_video 报错: ", e)
             # return
-    return ret_data
+    # return ret_data
 
 
-def download_url_wrapper():
+def download_url_wrapper(thread_id: int):
+
     while True:
         if queue_lock.acquire() and len(global_parsed_video_urls_queue) > 0:
-        #if queue_lock.acquire() and len(global_parsed_video_urls_queue) > 0:
+            # if queue_lock.acquire() and len(global_parsed_video_urls_queue) > 0:
             url_desc_tag = global_parsed_video_urls_queue.pop(0)
 
             # 立即释放锁
             queue_lock.release()
             try:
+                print(f"线程 {thread_id} 开始下载:")
                 asyncio.run(
                     download_single_url(
                         url_desc_tag,
@@ -200,7 +206,7 @@ async def get_page_video_share_urls(url, tag: str):
             print(r)
             print("==================")
             # while time.time() - tmp_start < 20:
-                # await asyncio.sleep(1)
+            # await asyncio.sleep(1)
         else:
             await asyncio.sleep(10)
 
@@ -288,8 +294,8 @@ async def main():
         # "https://www.tiktok.com/tag/meme",
         # "https://www.tiktok.com/tag/funny",
         # "https://www.tiktok.com/tag/food",
-        "https://www.tiktok.com/tag/dancing",
-        "https://www.tiktok.com/tag/dance",
+        # "https://www.tiktok.com/tag/dancing",
+        # "https://www.tiktok.com/tag/dance",
         "https://www.tiktok.com/tag/eating",
         "https://www.tiktok.com/tag/fyp",
         "https://www.tiktok.com/tag/foryou",
@@ -319,13 +325,11 @@ async def main():
         "https://www.tiktok.com/tag/new",
     ]
 
-
-
-
+    threads: List[threading.Thread] = []
     for i in range(os.cpu_count() - 2):
-        threading.Thread(
-            target=download_url_wrapper,
-        )
+        t = threading.Thread(target=download_url_wrapper, args=(i,))
+        threads.append(t)
+        t.start()
 
     for url in pages:
         try:
@@ -336,6 +340,9 @@ async def main():
         except Exception as e:
             print(f"Error getting videos from {url}: {e}")
             traceback.print_exc()
+
+    for t in threads:
+        t.join()
     pass
 
 

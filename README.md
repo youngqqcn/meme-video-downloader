@@ -2,6 +2,13 @@
 
 ## 依赖 Dependencies
 
+- Python版本 :  Python3.13.2 及以上
+
+```
+sudo apt install libjpeg-dev zlib1g-dev
+
+```
+
 - 下载 Chrome 和 chromedriver (版本必须一致):
   - https://googlechromelabs.github.io/chrome-for-testing/
   - chrome-linux64: https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.165/linux64/chrome-linux64.zip
