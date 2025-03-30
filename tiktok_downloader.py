@@ -1,33 +1,23 @@
 import asyncio
-import json
-from multiprocessing import Pool, Process, cpu_count
 import os
-import random
 import sys
 from threading import Thread
 import traceback
-from types import CoroutineType
 from typing import List
-
-import aiofiles
 import httpx
 import requests
-
-# 添加 Douyin_TikTok_Download_API
-current_dir = os.path.dirname(os.path.abspath(__file__))
-a_dir = os.path.abspath(os.path.join(current_dir, "Douyin_TikTok_Download_API"))
-sys.path.append(a_dir)
-
-# from crawlers.hybrid.hybrid_crawler import HybridCrawler
-from Douyin_TikTok_Download_API.crawlers.hybrid.hybrid_crawler import HybridCrawler
-
-
 import time
 import requests
 import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+
+# 添加 Douyin_TikTok_Download_API
+current_dir = os.path.dirname(os.path.abspath(__file__))
+a_dir = os.path.abspath(os.path.join(current_dir, "Douyin_TikTok_Download_API"))
+sys.path.append(a_dir)
+from Douyin_TikTok_Download_API.crawlers.hybrid.hybrid_crawler import HybridCrawler
 
 
 def get_default_chrome_options():
@@ -143,7 +133,6 @@ async def parse_tiktok_urls(urls: List[str], tag: str):
     ret_data = []
 
     threads = []
-    i = 0
     for url in urls:
         try:
             data = await HybridCrawler().hybrid_parsing_single_video(
@@ -156,14 +145,12 @@ async def parse_tiktok_urls(urls: List[str], tag: str):
             description = description.replace("/", "_")
             ret_data.append((no_watermark_video_url, description, tag))
 
-            # Process()
             t = Thread(
                 target=download_url_wrapper,
                 args=((no_watermark_video_url, description, tag),),
             )
             t.start()
             threads.append(t)
-            i += 1
         except Exception as e:
             print("hybrid_parsing_single_video 报错: ", e)
             # return
@@ -289,19 +276,6 @@ def login_tiktok():
 
 
 async def main():
-    # share_url = "https://www.tiktok.com/@g1885068req/video/7483013990390582583?is_from_webapp=1&sender_device=pc"
-    # share_url = "https://www.tiktok.com/@notnayelig/video/7477658217661877550?is_from_webapp=1&sender_device=pc"
-    # await download_tiktok(share_url)
-
-    # login_tiktok()
-
-    # download_video(
-    #     url="https://v16m-default.akamaized.net/e6fa9d80e2e6454538eac706609a858e/67e6df2f/video/tos/useast2a/tos-useast2a-ve-0068-euttp/oQk5uBrERE0ARPdf6DIQ2fDlYQQFEDCEBQrSR5/?a=0&bti=OHYpOTY0Zik3OjlmOm01MzE6ZDQ0MDo%3D&ch=0&cr=13&dr=0&er=0&lr=all&net=0&cd=0%7C0%7C0%7C&cv=1&br=1498&bt=749&cs=2&ds=6&ft=XE5bCqx4m3lPD12U~z9J3wU682StMeF~O5&mime_type=video_mp4&qs=11&rc=aDVnNjk7Njs0Njw5NTw7Z0BpM2h5OXc5cjM3cTMzZjczM0AuMS0wLmAwXzAxM2MvLzIwYSM1Z29hMmRrNmZgLS1kMWNzcw%3D%3D&vvpl=1&l=202503281140450ABFE7BF0EFF8F3CC646&btag=e000b8000",
-    #     caption="xxx",
-    #     headers=None,
-    #     file_path="xxx.mp4",
-    # )
-    # return
 
     pages = [
         # "https://www.tiktok.com/tag/meme",
@@ -309,7 +283,7 @@ async def main():
         # "https://www.tiktok.com/tag/food",
         # "https://www.tiktok.com/tag/dancing",
         # "https://www.tiktok.com/tag/dance",
-        "https://www.tiktok.com/tag/eating",
+        # "https://www.tiktok.com/tag/eating",
         "https://www.tiktok.com/tag/fyp",
         "https://www.tiktok.com/tag/foryou",
         "https://www.tiktok.com/tag/foryoupage",
