@@ -46,3 +46,5 @@ pip3 install -r requirements.txt
 - F5刷新， 查看`info`接口获取cookie
 
 ![](./get_tiktok_cache.jpg)
+
+- 更新 [`Douyin_TikTok_Download_API/crawlers/tiktok/web/config.yaml`](./Douyin_TikTok_Download_API/crawlers/tiktok/web/config.yaml) 中的 Tiktok下的 Cookie字段， 其他字段不变
