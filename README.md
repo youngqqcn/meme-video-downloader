@@ -1,11 +1,18 @@
-- 下载 9GAG.com的视频
+# 爬虫 video crawler
+- 下载 Tiktok, 9GAG.com, Reddit 的视频/图片/文案:
+  - Tiktok爬虫: [titok_downloader.py](./tiktok_downloader.py)
+  - 9gag爬虫: [9gag_downloader.py](./9gag_downloader.py)
+  - reddit爬虫: [reddit_downloader.py](./reddit_downloader.py)
 
 ## 依赖 Dependencies
 
 - Python版本 :  Python3.13.2 及以上
 
 ```
+
 sudo apt install libjpeg-dev zlib1g-dev
+
+pip3 install -r requirements.txt
 
 ```
 
@@ -19,8 +26,6 @@ sudo apt install libjpeg-dev zlib1g-dev
 - 解压当前目录:
   - `unzip chrome-linux64.zip`
   - `unzip chromedriver-linux64.zip`
-
-基于 `yt-dlp`: https://github.com/yt-dlp/yt-dlp
 
 
 ## 获取Tiktok的cache
