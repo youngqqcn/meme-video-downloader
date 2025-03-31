@@ -39,7 +39,7 @@ pip3 install -r requirements.txt
   - `unzip chromedriver-linux64.zip`
 
 
-## 获取Tiktok的cookie
+## 获取Tiktok的cookie 并更新cookie
 
 - 在其他浏览器(Chrome)登录Tiktok， F5刷新查看
   - 注意: 测试版Chrome登录不了Tiktok, 原因未知，
