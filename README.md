@@ -1,7 +1,7 @@
 # 视频爬虫 video crawler
 - 下载 Tiktok, 9GAG.com, Reddit 的视频/图片/文案:
   - Tiktok爬虫: [titok_downloader.py](./tiktok_downloader.py)
-    - 需要获取cache， 用其他浏览器登录
+    - 需要获取cookie， 用其他浏览器登录
   - 9gag爬虫: [9gag_downloader.py](./9gag_downloader.py)
   - reddit爬虫: [reddit_downloader.py](./reddit_downloader.py)
 
@@ -22,7 +22,7 @@ sudo apt install libjpeg-dev zlib1g-dev
 pip3 install -r requirements.txt
 
 
-# tiktok获取cache
+# tiktok获取cookie
 # reddit需要登录
 # 9gag 免登录
 ```
@@ -39,8 +39,10 @@ pip3 install -r requirements.txt
   - `unzip chromedriver-linux64.zip`
 
 
-## 获取Tiktok的cache
+## 获取Tiktok的cookie
 
-- F5刷新
+- 在其他浏览器(Chrome)登录Tiktok， F5刷新查看
+  - 注意: 测试版Chrome登录不了Tiktok, 原因未知，
+- F5刷新， 查看`info`接口获取cookie
 
 ![](./get_tiktok_cache.jpg)
