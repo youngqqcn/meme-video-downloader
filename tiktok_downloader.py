@@ -197,7 +197,6 @@ async def get_page_videos(url, tag: str):
             tmp_start = time.time()
 
             await parse_tiktok_urls(r, tag)
-            # download_tiktok_urls(url_descs_tag)
             print("==================")
             print(r)
             print("==================")
@@ -213,7 +212,9 @@ async def get_page_videos(url, tag: str):
             try:
                 new_height = driver.execute_script("return document.body.scrollHeight")
                 if new_height == last_height:
-                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    driver.execute_script(
+                        "window.scrollTo(0, document.body.scrollHeight);"
+                    )
                     await asyncio.sleep(10)
                 else:
                     break
@@ -229,8 +230,6 @@ async def get_page_videos(url, tag: str):
         last_height = new_height
         pass
 
-    # return ret_videos
-    # time.sleep(1200)
     return []
 
 
@@ -288,59 +287,59 @@ async def main():
         # "https://www.tiktok.com/tag/beauty",
         # "https://www.tiktok.com/tag/basketball",
         # "https://www.tiktok.com/tag/dancer",
-        "https://www.tiktok.com/tag/relax",
-        "https://www.tiktok.com/tag/relaxing",
-        "https://www.tiktok.com/tag/scenery",
-        "https://www.tiktok.com/tag/massage",
-        "https://www.tiktok.com/tag/spa",
-        "https://www.tiktok.com/tag/behappy",
-        "https://www.tiktok.com/tag/hopecore",
-        "https://www.tiktok.com/tag/positivity",
-        "https://www.tiktok.com/tag/wholesome",
-        "https://www.tiktok.com/tag/trading",
-        "https://www.tiktok.com/tag/memecoin",
-        "https://www.tiktok.com/tag/couple",
+        # "https://www.tiktok.com/tag/relax",
+        # "https://www.tiktok.com/tag/relaxing",
+        # "https://www.tiktok.com/tag/scenery",
+        # "https://www.tiktok.com/tag/massage",
+        # "https://www.tiktok.com/tag/spa",
+        # "https://www.tiktok.com/tag/behappy",
+        # "https://www.tiktok.com/tag/hopecore",
+        # "https://www.tiktok.com/tag/positivity",
+        # "https://www.tiktok.com/tag/wholesome",
+        # "https://www.tiktok.com/tag/trading",
+        # "https://www.tiktok.com/tag/memecoin",
+        # "https://www.tiktok.com/tag/couple",
         # "https://www.tiktok.com/tag/blackpink",
         # "https://www.tiktok.com/tag/cute",
         # "https://www.tiktok.com/tag/capcut",
         # "https://www.tiktok.com/tag/comedia",
         # "https://www.tiktok.com/tag/duet",
         # "https://www.tiktok.com/tag/explore",
-        "https://www.tiktok.com/tag/game",
-        "https://www.tiktok.com/tag/humor",
-        "https://www.tiktok.com/tag/happy",
-        "https://www.tiktok.com/tag/kpop",
-        "https://www.tiktok.com/tag/makeup",
-        "https://www.tiktok.com/tag/music",
-        "https://www.tiktok.com/tag/love",
-        "https://www.tiktok.com/tag/like",
-        "https://www.tiktok.com/tag/new",
-        "https://www.tiktok.com/tag/onthisday",
-        "https://www.tiktok.com/tag/outfit",
-        "http://tiktok.com/tag/parati",
-        "http://tiktok.com/tag/paratii",
-        "http://tiktok.com/tag/pourtoi",
-        "http://tiktok.com/tag/paratiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
-        "http://tiktok.com/tag/pov",
-        "http://tiktok.com/tag/satisfying",
-        "http://tiktok.com/tag/storytime",
-        "http://tiktok.com/tag/standwithkashmir",
-        "http://tiktok.com/tag/trending",
-        "http://tiktok.com/tag/trendingvideo",
-        "http://tiktok.com/tag/tiktok",
-        "http://tiktok.com/tag/tiktokviral",
-        "http://tiktok.com/tag/usa",
-        "https://www.tiktok.com/tag/viral",
-        "https://www.tiktok.com/tag/viralvideo",
-        "https://www.tiktok.com/tag/video",
-        "https://www.tiktok.com/tag/macau",
-        "https://www.tiktok.com/tag/you",
-        "https://www.tiktok.com/tag/zoommyface",
-        "https://www.tiktok.com/tag/amor",
-        "https://www.tiktok.com/tag/bts",
-        "https://www.tiktok.com/tag/Netherlands",
-        "https://www.tiktok.com/tag/amsterdam",
-        "https://www.tiktok.com/tag/redlights",
+        # "https://www.tiktok.com/tag/game",
+        # "https://www.tiktok.com/tag/humor",
+        # "https://www.tiktok.com/tag/happy",
+        # "https://www.tiktok.com/tag/kpop",
+        # "https://www.tiktok.com/tag/makeup",
+        # "https://www.tiktok.com/tag/music",
+        # "https://www.tiktok.com/tag/love",
+        # "https://www.tiktok.com/tag/like",
+        # "https://www.tiktok.com/tag/new",
+        # "https://www.tiktok.com/tag/onthisday",
+        # "https://www.tiktok.com/tag/outfit",
+        # "https://tiktok.com/tag/parati",
+        # "https://tiktok.com/tag/paratii",
+        # "https://tiktok.com/tag/pourtoi",
+        # "https://tiktok.com/tag/paratiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+        # "https://tiktok.com/tag/pov",
+        # "https://tiktok.com/tag/satisfying",
+        # "https://tiktok.com/tag/storytime",
+        # "https://tiktok.com/tag/standwithkashmir",
+        # "https://tiktok.com/tag/trending",
+        # "https://tiktok.com/tag/trendingvideo",
+        # "https://tiktok.com/tag/tiktok",
+        # "https://tiktok.com/tag/tiktokviral",
+        # "https://tiktok.com/tag/usa",
+        # "https://www.tiktok.com/tag/viral",
+        # "https://www.tiktok.com/tag/viralvideo",
+        # "https://www.tiktok.com/tag/video",
+        # "https://www.tiktok.com/tag/macau",
+        # "https://www.tiktok.com/tag/you",
+        # "https://www.tiktok.com/tag/zoommyface",
+        # "https://www.tiktok.com/tag/amor",
+        # "https://www.tiktok.com/tag/bts",
+        # "https://www.tiktok.com/tag/Netherlands",
+        # "https://www.tiktok.com/tag/amsterdam",
+        # "https://www.tiktok.com/tag/redlights",
         "https://www.tiktok.com/tag/bitcoin",
         "https://www.tiktok.com/tag/solana",
         "https://www.tiktok.com/tag/crypto",
@@ -509,7 +508,6 @@ async def main():
         "https://www.tiktok.com/tag/capcut",
         "https://www.tiktok.com/tag/ai",
         "https://www.tiktok.com/tag/asian",
-        # "https://www.tiktok.com/tag/tokyogirl",
         "https://www.tiktok.com/tag/%E6%97%A5%E6%9C%AC",
         "https://www.tiktok.com/tag/%E6%B2%96%E7%B8%84",
         "https://www.tiktok.com/tag/sjk",
@@ -553,11 +551,9 @@ async def main():
         "https://www.tiktok.com/tag/wallstreet",
         "https://www.tiktok.com/tag/manhattan",
         "https://www.tiktok.com/tag/Lhasa",
-        # "https://www.tiktok.com/tag/aigirl",
         "https://www.tiktok.com/tag/menstyle",
         "https://www.tiktok.com/tag/mensfashion",
         "https://www.tiktok.com/tag/menswear",
-
     ]
     for url in pages:
         try:
