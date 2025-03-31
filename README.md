@@ -1,4 +1,4 @@
-# 爬虫 video crawler
+# 视频爬虫 video crawler
 - 下载 Tiktok, 9GAG.com, Reddit 的视频/图片/文案:
   - Tiktok爬虫: [titok_downloader.py](./tiktok_downloader.py)
     - 需要获取cache， 用其他浏览器登录
