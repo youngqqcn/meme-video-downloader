@@ -251,14 +251,31 @@ def get_video_share_url():
     except Exception as e:
         print("error: " + str(e))
 
-    # 等待页面加载完成后查找视频
-    print("get_video_and_text_ex")
-    vidoe_div_list = driver.find_elements(
-        By.CLASS_NAME, "css-x6y88p-DivItemContainerV2"
-    )
-    print("vidoe_list length:", len(vidoe_div_list))
+    video_div_list = []
+    try:
+        # 等待页面加载完成后查找视频
+        for i in range(3):
+            print("get_video_and_text_ex")
+            video_div_list = driver.find_elements(
+                By.CLASS_NAME, "css-x6y88p-DivItemContainerV2"
+            )
+            print("vidoe_list length:", len(video_div_list))
 
-    for video_div in vidoe_div_list:
+            if len(video_div_list) > 0:
+                break
+
+            # 刷新页面
+            if len(video_div_list) == 0:
+                driver.refresh()
+                time.sleep(5)
+                video_div_list = driver.find_elements(
+                    By.CLASS_NAME, "css-x6y88p-DivItemContainerV2"
+                )
+    except Exception as e:
+        driver.refresh()
+        return videos
+
+    for video_div in video_div_list:
         try:
             link = video_div.find_element(By.TAG_NAME, "a")
             video_share_url = link.get_attribute("href")
@@ -355,11 +372,11 @@ async def main():
         # "https://www.tiktok.com/tag/bitcoin",
         # "https://www.tiktok.com/tag/solana",
         # "https://www.tiktok.com/tag/crypto",
-        "https://www.tiktok.com/tag/baby",
+        # "https://www.tiktok.com/tag/baby",
         # "https://www.tiktok.com/tag/challenge",
-        "https://www.tiktok.com/tag/dog",
+        # "https://www.tiktok.com/tag/dog",
         # "https://www.tiktok.com/tag/dress",
-        "https://www.tiktok.com/tag/dc",
+        # "https://www.tiktok.com/tag/dc",
         # "https://www.tiktok.com/tag/indonesia",
         # "https://www.tiktok.com/tag/thailand",
         # "https://www.tiktok.com/tag/japan",
