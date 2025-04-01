@@ -175,23 +175,64 @@ async def get_page_videos(url, tag: str):
     driver.get(url)
     start_time = time.time()
 
-    await asyncio.sleep(15)
+    await asyncio.sleep(5)
     # 使用 set去重
     ret_videos = set()
     # 获取初始滚动高度
     last_height = driver.execute_script("return document.body.scrollHeight")
     while time.time() - start_time < 5 * 60 * 60:
-        r = get_video_share_url()
         try:
+            try:
+                # 处理首次打开页面报错， 需要点击"刷新"
+                error_div = driver.find_element(
+                    By.CLASS_NAME, "css-1osbocj-DivErrorContainer"
+                )
+                if error_div:
+                    fresh_button = error_div.find_element(By.TAG_NAME, "button")
+                    fresh_button.click()
+                    time.sleep(5)
+            except NoSuchElementException as e:
+                print("页面打开正常")
+            except Exception as e:
+                print("error: " + str(e))
+
+
             print("scrolling...")
             # 滚到到底部
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            # 向下滚动一页
-            # driver.execute_script("window.scrollBy(0, window.innerHeight);")
+            for i in range(3):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                await asyncio.sleep(3)
+
+            # 休眠几秒，等待页面加载
+            await asyncio.sleep(5)
+            try_times = 0
+            new_height = 0
+            while try_times < 3:
+                try:
+                    new_height = driver.execute_script(
+                        "return document.body.scrollHeight"
+                    )
+                    if new_height == last_height:
+                        driver.execute_script(
+                            "window.scrollTo(0, document.body.scrollHeight);"
+                        )
+                        await asyncio.sleep(10)
+                    else:
+                        break
+                except Exception as e:
+                    print(f"Error scrolling: {e}")
+                finally:
+                    try_times += 1
+            if new_height == last_height:
+                print("滚动到底部了，已经滚不动了")
+                break
+
+            last_height = new_height
         except Exception as e:
             print(f"Error scrolling: {e}")
             continue
 
+        r = get_video_share_url()
         if len(r) > 0:
             ret_videos.update(r)
             tmp_start = time.time()
@@ -205,29 +246,6 @@ async def get_page_videos(url, tag: str):
         else:
             await asyncio.sleep(10)
 
-        # 休眠几秒，等待页面加载
-        try_times = 0
-        new_height = 0
-        while try_times < 3:
-            try:
-                new_height = driver.execute_script("return document.body.scrollHeight")
-                if new_height == last_height:
-                    driver.execute_script(
-                        "window.scrollTo(0, document.body.scrollHeight);"
-                    )
-                    await asyncio.sleep(10)
-                else:
-                    break
-            except Exception as e:
-                print(f"Error scrolling: {e}")
-            finally:
-                try_times += 1
-
-        if try_times == 3 and new_height == last_height:
-            print("滚动到底部了，已经滚不动了")
-            break
-
-        last_height = new_height
         pass
 
     return []
@@ -238,18 +256,6 @@ def get_video_share_url():
     获取页面中的视频和文案
     """
     videos = []
-
-    try:
-        # 处理首次打开页面报错， 需要点击"刷新"
-        error_div = driver.find_element(By.CLASS_NAME, "css-1osbocj-DivErrorContainer")
-        if error_div:
-            fresh_button = error_div.find_element(By.TAG_NAME, "button")
-            fresh_button.click()
-            time.sleep(5)
-    except NoSuchElementException as e:
-        print("页面打开正常")
-    except Exception as e:
-        print("error: " + str(e))
 
     video_div_list = []
     try:
@@ -298,23 +304,23 @@ def login_tiktok():
 async def main():
 
     pages = [
-        "https://www.tiktok.com/tag/meme",
-        "https://www.tiktok.com/tag/funny",
-        "https://www.tiktok.com/tag/food",
-        "https://www.tiktok.com/tag/dancing",
-        "https://www.tiktok.com/tag/dance",
-        "https://www.tiktok.com/tag/eating",
-        "https://www.tiktok.com/tag/fyp",
-        "https://www.tiktok.com/tag/foryou",
-        "https://www.tiktok.com/tag/foryoupage",
-        "https://www.tiktok.com/tag/funnyvideos",
-        "https://www.tiktok.com/tag/fy",
-        "https://www.tiktok.com/tag/prank",
-        "https://www.tiktok.com/tag/fun",
-        "https://www.tiktok.com/tag/pets",
-        "https://www.tiktok.com/tag/anime",
+        # "https://www.tiktok.com/tag/meme",
+        # "https://www.tiktok.com/tag/funny",
+        # "https://www.tiktok.com/tag/food",
+        # "https://www.tiktok.com/tag/dancing",
+        # "https://www.tiktok.com/tag/dance",
+        # "https://www.tiktok.com/tag/eating",
+        # "https://www.tiktok.com/tag/fyp",
+        # "https://www.tiktok.com/tag/foryou",
+        # "https://www.tiktok.com/tag/foryoupage",
+        # "https://www.tiktok.com/tag/funnyvideos",
+        # "https://www.tiktok.com/tag/fy",
+        # "https://www.tiktok.com/tag/prank",
+        # "https://www.tiktok.com/tag/fun",
+        # "https://www.tiktok.com/tag/pets",
+        # "https://www.tiktok.com/tag/anime",
         "https://www.tiktok.com/tag/beauty",
-        "https://www.tiktok.com/tag/basketball",
+        # "https://www.tiktok.com/tag/basketball",
         "https://www.tiktok.com/tag/dancer",
         "https://www.tiktok.com/tag/relax",
         "https://www.tiktok.com/tag/relaxing",
