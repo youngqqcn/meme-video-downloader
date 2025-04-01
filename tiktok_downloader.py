@@ -27,9 +27,14 @@ def get_default_chrome_options():
     options.add_argument("--disable-infobars")
     # options.add_argument("start-maximized") #  最大化
     options.add_argument("--disable-extensions")
+    options.add_argument("--lang=en-US")  # 英语
     # Pass the argument 1 to allow and 2 to block
     options.add_experimental_option(
-        "prefs", {"profile.default_content_setting_values.notifications": 1}
+        "prefs",
+        {
+            "profile.default_content_setting_values.notifications": 1,
+            "intl.accept_languages": "en-US",
+        },
     )
 
     # 尝试绕开 Google安全，以登录google账号
@@ -179,6 +184,7 @@ async def get_page_videos(url, tag: str):
     ret_videos = set()
     # 获取初始滚动高度
     last_height = driver.execute_script("return document.body.scrollHeight")
+    page_count = 0
     while True:
         try:
             if True:
@@ -237,8 +243,10 @@ async def get_page_videos(url, tag: str):
             if True:
                 try_times = 0
                 new_height = 0
-                while try_times < 3:
+                try_count = 3
+                while try_times < try_count:
                     try:
+                        new_height = 0
                         new_height = driver.execute_script(
                             "return document.body.scrollHeight"
                         )
@@ -253,15 +261,19 @@ async def get_page_videos(url, tag: str):
                         print(f"Error scrolling: {e}")
                     finally:
                         try_times += 1
-                if new_height == last_height:
+                if try_count == try_times and new_height == last_height:
                     print("滚动到底部了，已经滚不动了")
-                    break
+                    if page_count == 0:
+                        # 如果是第一页， 尝试获取一下
+                        break
+                    return []
 
                 last_height = new_height
         except Exception as e:
             print(f"Error : {e}")
             continue
 
+        page_count += 1
         # 获取页面上的视频分享链接
         if True:
             r = get_video_share_url()
@@ -314,10 +326,22 @@ def get_video_share_url():
         driver.refresh()
         return videos
 
+    temp_dir = ".temp"
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir, exist_ok=True)
     for video_div in video_div_list:
         try:
             link = video_div.find_element(By.TAG_NAME, "a")
             video_share_url = link.get_attribute("href")
+
+            # 通过创建临时文件去重
+            video_id = video_share_url[video_share_url.rfind("/") + 1 :]
+            temp_video_record_path = os.path.join(temp_dir, video_id)
+            if os.path.exists(temp_video_record_path):
+                print(f"视频链接已处理过, 跳过:{video_share_url}")
+                continue
+            os.open(os.path.join(temp_dir, video_id), os.O_CREAT | os.O_RDWR)
+
             if video_share_url not in url_sets:
                 videos.append(video_share_url)
                 url_sets.add(video_share_url)
@@ -330,11 +354,13 @@ def get_video_share_url():
 
 def login_tiktok():
     driver.get("https://www.tiktok.com/tag/meme")
+    # driver.get("chrome://settings/")
     time.sleep(10000)
     pass
 
 
 async def main():
+    # login_tiktok()
 
     pages = [
         # "https://www.tiktok.com/tag/meme",
@@ -352,38 +378,38 @@ async def main():
         # "https://www.tiktok.com/tag/fun",
         # "https://www.tiktok.com/tag/pets",
         # "https://www.tiktok.com/tag/anime",
-        "https://www.tiktok.com/tag/beauty",
+        # "https://www.tiktok.com/tag/beauty",
         # "https://www.tiktok.com/tag/basketball",
-        "https://www.tiktok.com/tag/dancer",
-        "https://www.tiktok.com/tag/relax",
-        "https://www.tiktok.com/tag/relaxing",
-        "https://www.tiktok.com/tag/scenery",
-        "https://www.tiktok.com/tag/massage",
-        "https://www.tiktok.com/tag/spa",
-        "https://www.tiktok.com/tag/behappy",
-        "https://www.tiktok.com/tag/hopecore",
-        "https://www.tiktok.com/tag/positivity",
-        "https://www.tiktok.com/tag/wholesome",
-        "https://www.tiktok.com/tag/trading",
-        "https://www.tiktok.com/tag/memecoin",
-        "https://www.tiktok.com/tag/couple",
-        "https://www.tiktok.com/tag/blackpink",
-        "https://www.tiktok.com/tag/cute",
-        "https://www.tiktok.com/tag/capcut",
-        "https://www.tiktok.com/tag/comedia",
-        "https://www.tiktok.com/tag/duet",
-        "https://www.tiktok.com/tag/explore",
-        "https://www.tiktok.com/tag/game",
-        "https://www.tiktok.com/tag/humor",
-        "https://www.tiktok.com/tag/happy",
-        "https://www.tiktok.com/tag/kpop",
-        "https://www.tiktok.com/tag/makeup",
-        "https://www.tiktok.com/tag/music",
-        "https://www.tiktok.com/tag/love",
-        "https://www.tiktok.com/tag/like",
-        "https://www.tiktok.com/tag/new",
-        "https://www.tiktok.com/tag/onthisday",
-        "https://www.tiktok.com/tag/outfit",
+        # "https://www.tiktok.com/tag/dancer",
+        # "https://www.tiktok.com/tag/relax",
+        # "https://www.tiktok.com/tag/relaxing",
+        # "https://www.tiktok.com/tag/scenery",
+        # "https://www.tiktok.com/tag/massage",
+        # "https://www.tiktok.com/tag/spa",
+        # "https://www.tiktok.com/tag/behappy",
+        # "https://www.tiktok.com/tag/hopecore",
+        # "https://www.tiktok.com/tag/positivity",
+        # "https://www.tiktok.com/tag/wholesome",
+        # "https://www.tiktok.com/tag/trading",
+        # "https://www.tiktok.com/tag/memecoin",
+        # "https://www.tiktok.com/tag/couple",
+        # "https://www.tiktok.com/tag/blackpink",
+        # "https://www.tiktok.com/tag/cute",
+        # "https://www.tiktok.com/tag/capcut",
+        # "https://www.tiktok.com/tag/comedia",
+        # "https://www.tiktok.com/tag/duet",
+        # "https://www.tiktok.com/tag/explore",
+        # "https://www.tiktok.com/tag/game",
+        # "https://www.tiktok.com/tag/humor",
+        # "https://www.tiktok.com/tag/happy",
+        # "https://www.tiktok.com/tag/kpop",
+        # "https://www.tiktok.com/tag/makeup",
+        # "https://www.tiktok.com/tag/music",
+        # "https://www.tiktok.com/tag/love",
+        # "https://www.tiktok.com/tag/like",
+        # "https://www.tiktok.com/tag/new",
+        # "https://www.tiktok.com/tag/onthisday",
+        # "https://www.tiktok.com/tag/outfit",
         "https://tiktok.com/tag/parati",
         "https://tiktok.com/tag/paratii",
         "https://tiktok.com/tag/pourtoi",
@@ -631,6 +657,7 @@ async def main():
             tag = url.replace("https://www.tiktok.com/tag/", "").strip()
             if not os.path.exists(os.path.join("downloads_tiktok", tag)):
                 os.makedirs(os.path.join("downloads_tiktok", tag), exist_ok=True)
+            url = url + "?lang=en"
             await get_page_videos(url, tag)
         except Exception as e:
             print(f"Error getting videos from {url}: {e}")

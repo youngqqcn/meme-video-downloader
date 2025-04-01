@@ -192,3 +192,6 @@ downloads_reddit
 downloads_tiktok
 
 logs
+
+# 临时文件目录
+.temp
