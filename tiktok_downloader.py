@@ -173,78 +173,111 @@ def download_url_wrapper(url_desc_tag):
 # 获取页面内容
 async def get_page_videos(url, tag: str):
     driver.get(url)
-    start_time = time.time()
-
     await asyncio.sleep(5)
+
     # 使用 set去重
     ret_videos = set()
     # 获取初始滚动高度
     last_height = driver.execute_script("return document.body.scrollHeight")
-    while time.time() - start_time < 5 * 60 * 60:
+    while True:
         try:
-            try:
-                # 处理首次打开页面报错， 需要点击"刷新"
-                error_div = driver.find_element(
-                    By.CLASS_NAME, "css-1osbocj-DivErrorContainer"
-                )
-                if error_div:
-                    fresh_button = error_div.find_element(By.TAG_NAME, "button")
-                    fresh_button.click()
-                    time.sleep(5)
-            except NoSuchElementException as e:
-                print("页面打开正常")
-            except Exception as e:
-                print("error: " + str(e))
+            if True:
+                try:
+                    # 处理首次打开页面报错， 需要点击"刷新"
+                    error_div = driver.find_element(
+                        By.CLASS_NAME, "css-1osbocj-DivErrorContainer"
+                    )
+                    if error_div:
+                        fresh_button = error_div.find_element(By.TAG_NAME, "button")
+                        fresh_button.click()
+                        time.sleep(5)
+                except NoSuchElementException as e:
+                    print("页面打开正常")
+                except Exception as e:
+                    print("error: " + str(e))
+                    continue
 
+            # 处理打开页面网络错误
+            if True:
+                video_div_list = []
+                for i in range(3):
+                    try:
+                        print("get_video_and_text_ex")
+                        video_div_list = driver.find_elements(
+                            By.CLASS_NAME, "css-x6y88p-DivItemContainerV2"
+                        )
+                        # print("vidoe_list length:", len(video_div_list))
+                        if len(video_div_list) > 0:
+                            break
+
+                        # 刷新页面
+                        if len(video_div_list) == 0:
+                            driver.refresh()
+                            await asyncio.sleep(5)
+                            video_div_list = driver.find_elements(
+                                By.CLASS_NAME, "css-x6y88p-DivItemContainerV2"
+                            )
+                    except Exception as e:
+                        continue
+
+                if len(video_div_list) == 0:
+                    print("获取页面视频链接失败")
+                    continue
 
             print("scrolling...")
-            # 滚到到底部
+            # 滚3次, 到底部
             for i in range(3):
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 await asyncio.sleep(3)
 
             # 休眠几秒，等待页面加载
             await asyncio.sleep(5)
-            try_times = 0
-            new_height = 0
-            while try_times < 3:
-                try:
-                    new_height = driver.execute_script(
-                        "return document.body.scrollHeight"
-                    )
-                    if new_height == last_height:
-                        driver.execute_script(
-                            "window.scrollTo(0, document.body.scrollHeight);"
-                        )
-                        await asyncio.sleep(10)
-                    else:
-                        break
-                except Exception as e:
-                    print(f"Error scrolling: {e}")
-                finally:
-                    try_times += 1
-            if new_height == last_height:
-                print("滚动到底部了，已经滚不动了")
-                break
 
-            last_height = new_height
+            # 判断是否已经滚动到底
+            if True:
+                try_times = 0
+                new_height = 0
+                while try_times < 3:
+                    try:
+                        new_height = driver.execute_script(
+                            "return document.body.scrollHeight"
+                        )
+                        if new_height == last_height:
+                            driver.execute_script(
+                                "window.scrollTo(0, document.body.scrollHeight);"
+                            )
+                            await asyncio.sleep(10)
+                        else:
+                            break
+                    except Exception as e:
+                        print(f"Error scrolling: {e}")
+                    finally:
+                        try_times += 1
+                if new_height == last_height:
+                    print("滚动到底部了，已经滚不动了")
+                    break
+
+                last_height = new_height
         except Exception as e:
-            print(f"Error scrolling: {e}")
+            print(f"Error : {e}")
             continue
 
-        r = get_video_share_url()
-        if len(r) > 0:
-            ret_videos.update(r)
-            tmp_start = time.time()
+        # 获取页面上的视频分享链接
+        if True:
+            r = get_video_share_url()
+            if len(r) > 0:
+                ret_videos.update(r)
+                tmp_start = time.time()
 
-            await parse_tiktok_urls(r, tag)
-            print("==================")
-            print(r)
-            print("==================")
-            while time.time() - tmp_start < 10:
-                await asyncio.sleep(1)
-        else:
-            await asyncio.sleep(10)
+                # 解析视频分享链接
+                await parse_tiktok_urls(r, tag)
+                print("==================")
+                print(r)
+                print("==================")
+                while time.time() - tmp_start < 10:
+                    await asyncio.sleep(1)
+            else:
+                await asyncio.sleep(2)
 
         pass
 
