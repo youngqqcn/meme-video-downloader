@@ -51,7 +51,9 @@ service = webdriver.ChromeService(executable_path="chromedriver-linux64/chromedr
 driver = webdriver.Chrome(service=service, options=options)
 
 
-url_sets = set([])
+global_url_sets = set([])
+
+DOWLOADS_TIKTOK_DIR = "downloads_tiktok"
 
 
 async def fetch_data(url: str, headers: dict = None):
@@ -116,7 +118,7 @@ async def download_single_url(url_desc_tag: tuple[str, str, str]):
         tag = url_desc_tag[2]
 
         file_path = os.path.abspath(
-            os.path.join("downloads_tiktok", description + ".mp4")
+            os.path.join(DOWLOADS_TIKTOK_DIR, description + ".mp4")
         )
         if os.path.exists(file_path):
             print(f"已存在, 跳过: {no_watermark_video_url}")
@@ -344,9 +346,9 @@ def get_video_share_url():
                 continue
             os.open(os.path.join(temp_dir, video_id), os.O_CREAT | os.O_RDWR)
 
-            if video_share_url not in url_sets:
+            if video_share_url not in global_url_sets:
                 videos.append(video_share_url)
-                url_sets.add(video_share_url)
+                global_url_sets.add(video_share_url)
         except NoSuchElementException as e:
             print("video标签不存在: " + str(e))
         except Exception as e:
@@ -658,8 +660,8 @@ async def main():
         try:
             # 去掉tag子目录
             tag = url.replace("https://www.tiktok.com/tag/", "").strip()
-            if not os.path.exists("downloads_tiktok"):
-                os.makedirs(os.path.join("downloads_tiktok", tag), exist_ok=True)
+            if not os.path.exists(DOWLOADS_TIKTOK_DIR):
+                os.makedirs(DOWLOADS_TIKTOK_DIR, exist_ok=True)
             url = url + "?lang=en"
             await get_page_videos(url, tag)
         except Exception as e:
