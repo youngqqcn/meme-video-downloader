@@ -35,7 +35,7 @@ def resize_to_square(image_path, output_path):
     img_cropped.close()
 
 
-def save_first_frame(video_path, output_image="first_frame.jpg"):
+def save_first_frame(video_path, output_image="first_frame.jpeg"):
     ffmpeg.input(video_path).output(output_image, vframes=1).run()
 
 
@@ -47,7 +47,7 @@ def make_images(filename: str):
         # 确保是文件且是视频格式（可扩展支持更多格式）
         if os.path.isfile(file_path) and filename.lower().endswith((".mp4")):
             # 生成图片文件路径
-            image_filename = os.path.splitext(filename)[0].replace(".mp4", "") + ".png"
+            image_filename = os.path.splitext(filename)[0].replace(".mp4", "") + ".jpeg"
             logo_image_path = os.path.join(LOGO_DIR, image_filename)
             cover_image_path = os.path.join(COVER_DIR, image_filename)
 

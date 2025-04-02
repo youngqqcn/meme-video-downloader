@@ -9,3 +9,11 @@
 # s3cmd del  s3://memevideo-static-online/idolx/yqq.txt
 # 上传目录(递归)
 # s3cmd sync --no-check-md5 --recursive --progress --skip-existing ./  s3://memevideo-static-online/idolx
+
+
+# s3cmd sync --no-check-md5 --recursive --progress --skip-existing ./cover  s3://memevideo-static-online/idolx/
+
+# s3cmd sync --no-check-md5 --recursive --progress --skip-existing ./logo  s3://memevideo-static-online/idolx/
+
+# 会自动创建同名目录
+# s3cmd sync --no-check-md5 --recursive --progress --skip-existing ./video  s3://memevideo-static-online/idolx/

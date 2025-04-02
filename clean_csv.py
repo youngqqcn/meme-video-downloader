@@ -63,18 +63,42 @@ def remove_non_unicode(text):
     return new_char.encode("utf-8", errors="ignore").decode("utf-8")
 
 
+# with open("video_info.csv", "r") as infile, open("video_info_new.csv", "w") as outfile:
+#     lines = infile.readlines()
+#     outfile.write(lines[0])
+#     lines = lines[1:]
+#     for line in lines:
+#         if len(line.strip()) == 0:
+#             continue
+#         video = line.split(",")[0]
+#         # print(video)
+#         if os.path.exists(os.path.join("video", video)):
+#             line = remove_non_unicode(line)
+#             outfile.write(line)
+#         else:
+#             print(video)
+
+
+# 求差集
 with open("video_info.csv", "r") as infile, open("video_info_new.csv", "w") as outfile:
     lines = infile.readlines()
     outfile.write(lines[0])
     lines = lines[1:]
+
+    videos_csv = set([])
     for line in lines:
         if len(line.strip()) == 0:
             continue
         video = line.split(",")[0]
-        print(video)
-        if os.path.exists(os.path.join("video", video)):
-            line = remove_non_unicode(line)
-            outfile.write(line)
+        videos_csv.add(video)
+
+    print('len(videos_csv) = ', len(videos_csv))
+    videos_dir = set(os.listdir('video'))
+    print('len(videos_dir) = ', len(videos_dir))
+
+    print(videos_dir.difference(videos_csv))
+
+
 
 
 # def clean_non_utf8(file_path):
