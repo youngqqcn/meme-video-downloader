@@ -195,3 +195,9 @@ logs
 
 # 临时文件目录
 .temp
+
+
+cover
+logo
+.venv*
+.qodo

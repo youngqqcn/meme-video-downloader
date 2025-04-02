@@ -1,9 +1,15 @@
+import multiprocessing
 import os
-import ffmpeg
+import threading
+from typing import List
 from PIL import Image
+import ffmpeg
+
 # 定义视频目录和输出图片目录
-video_dir = "video"
-output_dir = "thumbnail"
+VIDEO_DIR = "video"
+LOGO_DIR = "logo"
+COVER_DIR = "cover"
+
 
 def resize_to_square(image_path, output_path):
     # 打开图片
@@ -33,36 +39,46 @@ def save_first_frame(video_path, output_image="first_frame.jpg"):
     ffmpeg.input(video_path).output(output_image, vframes=1).run()
 
 
+def make_images(filename: str):
+
+    file_path = os.path.join(VIDEO_DIR, filename)
+
+    # 确保是文件且是视频格式（可扩展支持更多格式）
+    if os.path.isfile(file_path) and filename.lower().endswith((".mp4")):
+        # 生成图片文件路径
+        image_filename = os.path.splitext(filename)[0].replace(".mp4", "") + ".png"
+        logo_image_path = os.path.join(LOGO_DIR, image_filename)
+        cover_image_path = os.path.join(COVER_DIR, image_filename)
+
+        if not os.path.exists(cover_image_path):
+            # 保存视频的第一帧为图片, 做封面图
+            save_first_frame(file_path, cover_image_path)
+        if not os.path.exists(logo_image_path):
+            # 保存裁剪后的图像为 1:1 PNG
+            resize_to_square(cover_image_path, logo_image_path)
+        print(f"Saved cropped first frame of {filename} as {image_filename}")
+    else:
+        print(f"Skipping non-video file: {filename}")
+    pass
+
+
 def main():
 
     # 确保输出目录存在
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(LOGO_DIR, exist_ok=True)
+    os.makedirs(COVER_DIR, exist_ok=True)
 
-    videos = set(os.listdir(video_dir))
+    videos = list(set(os.listdir(VIDEO_DIR)))
     print("videos length: ", len(videos))
+    # print(videos[0])
 
     # 遍历视频目录中的所有文件
-    for filename in videos:
-        file_path = os.path.join(video_dir, filename)
 
-        # 确保是文件且是视频格式（可扩展支持更多格式）
-        if os.path.isfile(file_path) and filename.lower().endswith((".mp4")):
-            # 生成图片文件路径
-            image_filename = os.path.splitext(filename)[0].replace(".mp4", "") + ".png"
-            image_path = os.path.join(output_dir, image_filename)
-
-            if os.path.exists(image_path):
-                continue
-
-            # 保存视频的第一帧为图片
-            save_first_frame(file_path, image_path)
-
-            # 保存裁剪后的图像为 1:1 PNG
-            # cv2.imwrite(image_path, cropped_frame)
-            resize_to_square(image_path, image_path)
-            print(f"Saved cropped first frame of {filename} as {image_filename}")
-        else:
-            print(f"Skipping non-video file: {filename}")
+    mp_pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
+    mp_pool.map(make_images, videos)
+    print("全部进程结束")
+    mp_pool.close()
+    mp_pool.join()
 
     pass
 

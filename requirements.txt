@@ -3,6 +3,7 @@ selenium
 python-dotenv
 moviepy
 requests
+ffmpeg-python
 
 
 
