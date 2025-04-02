@@ -43,23 +43,29 @@ def make_images(filename: str):
 
     file_path = os.path.join(VIDEO_DIR, filename)
 
-    # 确保是文件且是视频格式（可扩展支持更多格式）
-    if os.path.isfile(file_path) and filename.lower().endswith((".mp4")):
-        # 生成图片文件路径
-        image_filename = os.path.splitext(filename)[0].replace(".mp4", "") + ".png"
-        logo_image_path = os.path.join(LOGO_DIR, image_filename)
-        cover_image_path = os.path.join(COVER_DIR, image_filename)
+    try:
+        # 确保是文件且是视频格式（可扩展支持更多格式）
+        if os.path.isfile(file_path) and filename.lower().endswith((".mp4")):
+            # 生成图片文件路径
+            image_filename = os.path.splitext(filename)[0].replace(".mp4", "") + ".png"
+            logo_image_path = os.path.join(LOGO_DIR, image_filename)
+            cover_image_path = os.path.join(COVER_DIR, image_filename)
 
-        if not os.path.exists(cover_image_path):
-            # 保存视频的第一帧为图片, 做封面图
-            save_first_frame(file_path, cover_image_path)
-        if not os.path.exists(logo_image_path):
-            # 保存裁剪后的图像为 1:1 PNG
-            resize_to_square(cover_image_path, logo_image_path)
-        print(f"Saved cropped first frame of {filename} as {image_filename}")
-    else:
-        print(f"Skipping non-video file: {filename}")
-    pass
+            if not os.path.exists(cover_image_path):
+                # 保存视频的第一帧为图片, 做封面图
+                save_first_frame(file_path, cover_image_path)
+            if not os.path.exists(logo_image_path):
+                # 保存裁剪后的图像为 1:1 PNG
+                resize_to_square(cover_image_path, logo_image_path)
+            # print(f"Saved cropped first frame of {filename} as {image_filename}")
+        else:
+            # print(f"Skipping non-video file: {filename}")
+            pass
+        pass
+    except Exception as e:
+        print("=========error: ", e)
+        print('直接删掉有问题的视频: ', file_path)
+        os.remove(file_path)
 
 
 def main():

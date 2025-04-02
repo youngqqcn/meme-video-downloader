@@ -8,4 +8,4 @@
 # 删除文件
 # s3cmd del  s3://memevideo-static-online/idolx/yqq.txt
 # 上传目录(递归)
-# s3cmd --recursive --skip-existing ./dir  s3://memevideo-static-online/idolx/dir
+# s3cmd sync --no-check-md5 --recursive --progress --skip-existing ./  s3://memevideo-static-online/idolx
