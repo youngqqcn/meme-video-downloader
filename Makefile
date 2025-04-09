@@ -17,3 +17,5 @@
 
 # 会自动创建同名目录
 # s3cmd sync --no-check-md5 --recursive --progress --skip-existing ./video  s3://memevideo-static-online/idolx/
+# s3cmd sync --recursive --progress --skip-existing ./video  s3://memevideo-static-online/idolx/
+# s3cmd sync --no-check-md5 --force --recursive --progress  ./video  s3://memevideo-static-online/idolx/
