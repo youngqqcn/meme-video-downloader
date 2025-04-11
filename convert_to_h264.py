@@ -5,6 +5,8 @@ import multiprocessing
 
 INPUT_DIR = "video"  # 输入目录
 OUTPUT_DIR = "new_video"  # 输出目录
+TEMP_DIR = '.convert'
+
 
 
 # 转换函数
@@ -17,8 +19,9 @@ def convert_hevc_to_h264(input_file, output_file):
             vcodec="libx264",
             acodec="aac",
             strict="experimental",
-            preset="fast",
-            crf=28,  # 18~28  , default 23, 值越小画质越高
+            preset="medium",
+            crf=23,  # 18~28  , default 23, 值越小画质越高
+            movflags="+faststart", # 将元数据放在开头
         ).run()
         print(f"转换成功: {output_file}")
     except ffmpeg.Error as e:
@@ -50,6 +53,9 @@ def process_video(file_path):
                 # shutil.copy(
                 #     file_path, os.path.join(OUTPUT_DIR, os.path.basename(file_path))
                 # )
+
+            # 创建一个临时文件，记录已经处理过的视频
+            os.open(os.path.join(TEMP_DIR, os.path.basename(file_path)), os.O_CREAT | os.O_RDWR)
         except ffmpeg.Error as e:
             print(f"无法读取文件 {file_path}: {e.stderr.decode()}")
 
@@ -77,6 +83,9 @@ if __name__ == "__main__":
 
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR, exist_ok=True)  # 创建输出目录
+
+    if not os.path.exists(TEMP_DIR):
+        os.makedirs(TEMP_DIR, exist_ok=True)
 
     # 确保视频目录存在
     if os.path.exists(video_directory):
